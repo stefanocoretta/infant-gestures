@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = normalizePath("../"))
 library(tidyverse)
 theme_set(theme_minimal())
+library(fitdistrplus)
 ```
 
 # Read data
@@ -22,12 +23,13 @@ gestures_tot <- gestures %>%
   summarise(
     count = sum(count)
   ) %>%
-  na.omit()
+  na.omit() %>%
+  ungroup()
 ```
 
 # Plot data
 
-```{r}
+```{r density}
 gestures_tot %>%
   ggplot(aes(count)) +
   geom_density() +
@@ -36,7 +38,7 @@ gestures_tot %>%
   geom_vline(xintercept = mean(gestures_tot$count), linetype = "dotted", colour = "blue")
 ```
 
-```{r}
+```{r density-31}
 gestures_tot %>%
   filter(count < 31) %>%
   ggplot(aes(count)) +
@@ -45,3 +47,24 @@ gestures_tot %>%
   geom_vline(xintercept = median(gestures_tot$count), linetype = "dashed", colour = "orange") +
   geom_vline(xintercept = mean(gestures_tot$count), linetype = "dotted", colour = "blue")
 ```
+
+```{r descdist}
+descdist(gestures_tot$count, discrete = TRUE)
+```
+
+```{r pois-plot}
+plot(fitdist(gestures_tot$count, "pois"))
+```
+
+```{r nbinom-plot}
+plot(fitdist(gestures_tot$count, "nbinom"))
+```
+
+```{r density-months-gest}
+gestures_tot %>%
+  ggplot(aes(count, fill = as.factor(months))) +
+  geom_density(alpha = 0.5) +
+  facet_grid(~ gesture)
+```
+
+
