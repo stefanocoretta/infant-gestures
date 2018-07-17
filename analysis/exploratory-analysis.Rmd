@@ -1,0 +1,47 @@
+---
+title: "Infant gestures"
+author: "Stefano Coretta"
+date: "17/07/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath("../"))
+library(tidyverse)
+theme_set(theme_minimal())
+```
+
+# Read data
+
+```{r read}
+gestures <- read_csv("./data/gestures.csv")
+
+gestures_tot <- gestures %>%
+  group_by(dyad, background, months, gesture) %>%
+  summarise(
+    count = sum(count)
+  ) %>%
+  na.omit()
+```
+
+# Plot data
+
+```{r}
+gestures_tot %>%
+  ggplot(aes(count)) +
+  geom_density() +
+  geom_rug() +
+  geom_vline(xintercept = median(gestures_tot$count), linetype = "dashed", colour = "orange") +
+  geom_vline(xintercept = mean(gestures_tot$count), linetype = "dotted", colour = "blue")
+```
+
+```{r}
+gestures_tot %>%
+  filter(count < 31) %>%
+  ggplot(aes(count)) +
+  geom_density() +
+  geom_rug() +
+  geom_vline(xintercept = median(gestures_tot$count), linetype = "dashed", colour = "orange") +
+  geom_vline(xintercept = mean(gestures_tot$count), linetype = "dotted", colour = "blue")
+```
