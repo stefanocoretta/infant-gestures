@@ -24,8 +24,15 @@ gestures_tot <- gestures %>%
     count = sum(count),
     ct = sum(ct)
   ) %>%
-  na.omit() %>%
   ungroup()
+```
+
+# Summaries
+
+Number of dyads per background.
+
+```{r n-dyads}
+gestures %>% group_by(background) %>% summarise(n = n_distinct(dyad))
 ```
 
 # Plot data
