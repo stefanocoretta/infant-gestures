@@ -24,7 +24,11 @@ gestures_tot <- gestures %>%
     count = sum(count),
     ct = sum(ct)
   ) %>%
-  ungroup()
+  ungroup() %>%
+  mutate(
+    gesture = factor(gesture, levels = c("reach", "point", "ho_gv"))
+  ) %>%
+  mutate_if(is.character, as.factor)
 ```
 
 # Summaries
