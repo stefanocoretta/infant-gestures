@@ -21,7 +21,8 @@ gestures <- read_csv("./data/gestures.csv")
 gestures_tot <- gestures %>%
   group_by(dyad, background, months, gesture) %>%
   summarise(
-    count = sum(count)
+    count = sum(count),
+    ct = sum(ct)
   ) %>%
   na.omit() %>%
   ungroup()
