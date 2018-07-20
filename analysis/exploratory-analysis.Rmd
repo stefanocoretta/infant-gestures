@@ -33,11 +33,14 @@ gestures_tot <- gestures %>%
 utterances <- read_csv("./data/utterances.csv")
 
 utterances_tot <- utterances %>%
-  group_by(dyad, months) %>%
+  group_by(dyad, background, months) %>%
   summarise(
     utterances = sum(utterances)
   ) %>%
   ungroup()
+
+utterances_compl <- utterances %>% na.omit()
+utterances_tcompl <- utterances_tot %>% na.omit()
 ```
 
 # Summaries
@@ -48,7 +51,17 @@ Number of dyads per background.
 gestures %>% group_by(background) %>% summarise(n = n_distinct(dyad))
 ```
 
+```{r n-dyads}
+utterances %>% group_by(background) %>% summarise(n = n_distinct(dyad))
+```
+
+15 Bangladeshi, 15 Chinese, 14 English.
+
+Utterances has 7 missing values.
+
 # Plot data
+
+## Gestures
 
 ```{r density}
 gestures_tot %>%
@@ -88,4 +101,83 @@ gestures_tot %>%
   facet_grid(~ gesture)
 ```
 
+## Utterances
 
+```{r utter-density}
+utterances %>%
+  ggplot(aes(utterances)) +
+  geom_density() +
+  geom_rug()
+```
+
+```{r utter-tot-density}
+utterances_tot %>%
+  ggplot(aes(utterances)) +
+  geom_density() +
+  geom_rug()
+```
+
+```{r utter-tot-distr}
+descdist(utterances_tcompl$utterances, discrete = TRUE)
+```
+
+
+```{r norm-plot}
+plot(fitdist(utterances_tcompl$utterances, "norm"))
+```
+
+```{r utter-background}
+utterances_tot %>%
+  ggplot(aes(utterances, fill = background)) +
+  geom_density(alpha = 0.5, colour = NA) +
+  geom_rug()
+```
+
+```{r utter-months}
+utterances_tot %>%
+  ggplot(aes(utterances, fill = as.factor(months))) +
+  geom_density(alpha = 0.5, colour = NA) +
+  geom_rug()
+```
+
+```{r utter-months-jitter}
+utterances_tot %>%
+  ggplot(aes(as.factor(months), utterances)) +
+  geom_jitter(width = 0.1)
+```
+
+```{r utter-months-jitter}
+utterances %>%
+  ggplot(aes(as.factor(months), utterances, colour = task)) +
+  geom_jitter(width = 0.1) +
+  facet_grid(~ task)
+```
+
+```{r utter-months-background-jitter}
+utterances %>%
+  ggplot(aes(as.factor(months), utterances, colour = task)) +
+  geom_jitter(width = 0.1) +
+  facet_grid(background ~ task)
+```
+
+```{r utter-months-background-jitter}
+utterances %>%
+  ggplot(aes(as.factor(months), utterances, colour = task, group = dyad)) +
+  geom_point() +
+  geom_line() +
+  facet_grid(background ~ task)
+```
+
+```{r utter-months-background-jitter-2}
+utterances %>%
+  ggplot(aes(as.factor(months), utterances, colour = background)) +
+  geom_jitter(width = 0.1) +
+  facet_grid(background ~ .)
+```
+
+```{r utter-background-jitter}
+utterances %>%
+  ggplot(aes(background, utterances, colour = background)) +
+  geom_jitter(width = 0.2) +
+  stat_summary(fun.y = median, geom = "point", shape = 18, size = 6, color = "black")
+```
