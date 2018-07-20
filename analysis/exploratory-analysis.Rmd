@@ -15,7 +15,7 @@ library(fitdistrplus)
 
 # Read data
 
-```{r read}
+```{r read, message=FALSE}
 gestures <- read_csv("./data/gestures.csv")
 
 gestures_tot <- gestures %>%
@@ -29,6 +29,15 @@ gestures_tot <- gestures %>%
     gesture = factor(gesture, levels = c("reach", "point", "ho_gv"))
   ) %>%
   mutate_if(is.character, as.factor)
+
+utterances <- read_csv("./data/utterances.csv")
+
+utterances_tot <- utterances %>%
+  group_by(dyad, months) %>%
+  summarise(
+    utterances = sum(utterances)
+  ) %>%
+  ungroup()
 ```
 
 # Summaries
