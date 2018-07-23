@@ -1,0 +1,43 @@
+---
+title: "Report 1 - Mother utterances data"
+date: "23/07/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = normalizePath("../../"))
+library(tidyverse)
+theme_set(theme_minimal())
+```
+
+```{r read-data, message=FALSE}
+utterances <- read_csv("./data/utterances.csv") %>%
+  mutate_if(is.character, as.factor)
+
+# NAs not removed in sum()
+utterances_tot <- utterances %>%
+  group_by(dyad, background, months) %>%
+  summarise(
+    utterances = sum(utterances)
+  ) %>%
+  ungroup()
+
+utter <- na.omit(utterances_tot)
+```
+
+This is how the dataset looks like:
+
+```{r utter}
+utterances_tot
+```
+
+The utterances have been aggredated within dyad from the counts of the 3 tasks (`five`, `tp1`, `tp2`). There are 125 observations plus 7 missing observations (n = 132). The following graph shows the density distribution of the utterances counts.
+
+```{r density}
+utter %>%
+  ggplot(aes(utterances)) +
+  geom_density() +
+  geom_rug() +
+  labs(x = "Mother utterances (count)", title = "Density plot of mother uttarances")
+```
