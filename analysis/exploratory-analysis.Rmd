@@ -32,12 +32,26 @@ gestures_tot <- gestures %>%
 
 utterances <- read_csv("./data/utterances.csv")
 
+# NAs not removed in sum()
 utterances_tot <- utterances %>%
   group_by(dyad, background, months) %>%
   summarise(
     utterances = sum(utterances)
   ) %>%
-  ungroup()
+  ungroup() %>%
+  mutate_if(is.character, as.factor)
+
+point <- gestures %>%
+  filter(gesture == "point") %>%
+  group_by(dyad, background, months) %>%
+  summarise(
+    count = sum(count)
+  ) %>%
+  ungroup() %>%
+  mutate_if(is.character, as.factor)
+
+utter_point <- left_join(utterances_tot, point) %>%
+  rename(point = count)
 
 utterances_compl <- utterances %>% na.omit()
 utterances_tcompl <- utterances_tot %>% na.omit()
@@ -147,11 +161,40 @@ utterances_tot %>%
 ```
 
 ```{r utter-months-jitter}
+utterances_tot %>%
+  ggplot(aes(as.factor(months), utterances, colour = background)) +
+  geom_jitter(width = 0.1) +
+  facet_grid(~ background)
+```
+
+```{r utter-months-line}
+utterances_tot %>%
+  group_by(background, months) %>%
+  summarise(mean = mean(utterances, na.rm = TRUE)) %>%
+  ggplot(aes(as.factor(months), mean, group = background, colour = background)) +
+  geom_point() +
+  geom_line() +
+  ylim(c(min(utterances_tot$utterances, na.rm = TRUE), max(utterances_tot$utterances, na.rm = TRUE)))
+```
+
+```{r utter-months-line}
+utterances_tot %>%
+  group_by(background, months) %>%
+  summarise(median = median(utterances, na.rm = TRUE)) %>%
+  ggplot(aes(as.factor(months), median, group = background, colour = background)) +
+  geom_point() +
+  geom_line() +
+  ylim(c(min(utterances_tot$utterances, na.rm = TRUE), max(utterances_tot$utterances, na.rm = TRUE)))
+```
+
+```{r utter-months-jitter}
 utterances %>%
   ggplot(aes(as.factor(months), utterances, colour = task)) +
   geom_jitter(width = 0.1) +
   facet_grid(~ task)
 ```
+
+
 
 ```{r utter-months-background-jitter}
 utterances %>%
@@ -169,15 +212,48 @@ utterances %>%
 ```
 
 ```{r utter-months-background-jitter-2}
-utterances %>%
+utterances_tot %>%
   ggplot(aes(as.factor(months), utterances, colour = background)) +
   geom_jitter(width = 0.1) +
   facet_grid(background ~ .)
 ```
 
+```{r utter-months-background-line}
+utterances_tot %>%
+  ggplot(aes(as.factor(months), utterances, colour = background)) +
+  # geom_boxplot(width = 0.5, aes(colour = NULL)) +
+  geom_point() +
+  geom_line(aes(group = dyad)) +
+  facet_grid(background ~ .)
+```
+
 ```{r utter-background-jitter}
-utterances %>%
+utterances_tot %>%
   ggplot(aes(background, utterances, colour = background)) +
   geom_jitter(width = 0.2) +
   stat_summary(fun.y = median, geom = "point", shape = 18, size = 6, color = "black")
+```
+
+## Utterances and points
+
+```{r}
+utter_point %>%
+  ggplot(aes(utterances, point)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r}
+utter_point %>%
+  ggplot(aes(utterances, point, colour = as.factor(months))) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r}
+utter_point %>%
+  ggplot(aes(utterances, point, colour = as.factor(months))) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ background)
 ```
