@@ -2,7 +2,9 @@
 title: "Infant gestures"
 author: "Stefano Coretta"
 date: "17/07/2018"
-output: pdf_document
+output: 
+  pdf_document: 
+    number_sections: yes
 ---
 
 ```{r setup, include=FALSE}
