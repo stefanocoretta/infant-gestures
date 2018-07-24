@@ -106,7 +106,7 @@ utter %>%
   labs(title = "Correlation between number of utterances and number\nof point gestures", x = "Mother utterances (count)", y = "Point gestures (count)")
 ```
 
-Is there an interaction between mother utterances and visit time? The effect seems to increase through visit time (although notice wide confidence intervals).
+Is there an interaction between mother utterances and visit time? In the following plot, the effect seems to increase through visit time (although notice wide confidence intervals).
 
 ```{r utter-point-months}
 utter %>%
