@@ -6,6 +6,8 @@ output:
     fig_height: 3.5
     fig_width: 5
     number_sections: yes
+version: "v1.0"
+last-updated: "24/07/2018"
 ---
 
 ```{r setup, include=FALSE}
