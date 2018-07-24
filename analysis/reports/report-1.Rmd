@@ -1,11 +1,15 @@
 ---
 title: "Report 1 - Mother utterances data"
 date: "23/07/2018"
-output: pdf_document
+output: 
+  pdf_document: 
+    fig_height: 3.5
+    fig_width: 5
+    number_sections: yes
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, fig.align = "center")
 knitr::opts_knit$set(root.dir = normalizePath("../../"))
 library(tidyverse)
 theme_set(theme_minimal())
@@ -23,8 +27,20 @@ utterances_tot <- utterances %>%
   ) %>%
   ungroup()
 
-utter <- na.omit(utterances_tot)
+point <- read_csv("./data/gestures.csv") %>%
+  filter(gesture == "point") %>%
+  group_by(dyad, background, months) %>%
+  summarise(
+    point = sum(count)
+  ) %>%
+  ungroup() %>%
+  mutate_if(is.character, as.factor)
+
+utter <- na.omit(utterances_tot) %>%
+  left_join(y = point)
 ```
+
+# Number of mother utterances
 
 This is how the dataset looks like:
 
@@ -40,4 +56,75 @@ utter %>%
   geom_density() +
   geom_rug() +
   labs(x = "Mother utterances (count)", title = "Density plot of mother uttarances")
+```
+
+Number of dyads per background.
+
+```{r n-dyads}
+utter %>% group_by(background) %>% summarise(n = n_distinct(dyad))
+```
+
+Possibly, Bangladeshi mothers have a lower utterance count than Chinese and English.
+
+```{r background}
+utter %>%
+  ggplot(aes(utterances, fill = background)) +
+  geom_density(alpha = 0.5, colour = NA) +
+  geom_rug() +
+  labs(x = "Mother utterances (count)")
+```
+
+A stripchart shows the same information, but the differences in variance stand out. From higher to lower variance, Bangladeshi > Chinese > English. The is a difference in median of about 100/150 utterances between Bangladeshi on one hand and Chinese/English on the other.
+
+```{r background-jitter}
+utter %>%
+  ggplot(aes(background, utterances, colour = background)) +
+  geom_jitter(width = 0.2) +
+  stat_summary(fun.y = median, geom = "point", shape = 18, size = 6, color = "black") +
+  labs(y = "Mother utterances (count)", title = "Number of mother utterances by background", subtitle = "The black diamond is the median")
+```
+
+The following connected points plot shows that there is no clear pattern of change in number of utterances through visit time. For each dyad, a point is plotted at each visit times (10, 11, 12) and the points of a dyad are connected by a line. The lines show the change within dyads across visit times. Most lines are almost flat.
+
+```{r months}
+utter %>%
+  ggplot(aes(as.factor(months), utterances, colour = background)) +
+  geom_point() +
+  geom_line(aes(group = dyad)) +
+  facet_grid(background ~ .) +
+  labs(x = "Visit time (child age in months)", y = "Mother utterances (count)", title = "Number of mother utterances utterances by visit for\neach background", subtitle = "Each point is a dyad, points of a dyad are connected by a line")
+```
+
+# Utterances vs. pointing
+
+```{r utter-point}
+utter %>%
+  # filter(utterances < 600, point < 30) %>%
+  ggplot(aes(utterances, point)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Correlation between number of utterances and number\nof point gestures", x = "Mother utterances (count)", y = "Point gestures (count)")
+```
+
+Is there an interaction between mother utterances and visit time? The effect seems to increase through visit time (although notice wide confidence intervals).
+
+```{r utter-point-months}
+utter %>%
+  ggplot(aes(utterances, point, colour = as.factor(months))) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  scale_color_discrete(name = "Visit time (months)") +
+  labs(title = "Utterances by point gestures through visit time", x = "Mother utterances (count)", y = "Point gestures (count)")
+```
+
+The increase might be driven by the Chinese dyads.
+
+```{r utter-point-background}
+utter %>%
+  ggplot(aes(utterances, point, colour = as.factor(months))) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(background ~ .) +
+  scale_color_discrete(name = "Visit time (months)") +
+  labs(title = "Utterances by point gestures through visit time\nby background", x = "Mother utterances (count)", y = "Point gestures (count)")
 ```
