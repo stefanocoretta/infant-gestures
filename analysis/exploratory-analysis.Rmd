@@ -71,9 +71,9 @@ gestures %>% group_by(background) %>% summarise(n = n_distinct(dyad))
 utterances %>% group_by(background) %>% summarise(n = n_distinct(dyad))
 ```
 
-15 Bangladeshi, 15 Chinese, 14 English.
+20 Bangladeshi, 20 Chinese, 19 English.
 
-Utterances has 7 missing values.
+`gestures` has 21 missing values. `utterances` has 12 missing values.
 
 # Plot data
 
@@ -84,8 +84,8 @@ gestures_tot %>%
   ggplot(aes(count)) +
   geom_density() +
   geom_rug() +
-  geom_vline(xintercept = median(gestures_tot$count), linetype = "dashed", colour = "orange") +
-  geom_vline(xintercept = mean(gestures_tot$count), linetype = "dotted", colour = "blue")
+  geom_vline(xintercept = median(gestures_tot$count, na.rm = TRUE), linetype = "dashed", colour = "orange") +
+  geom_vline(xintercept = mean(gestures_tot$count, na.rm = TRUE), linetype = "dotted", colour = "blue")
 ```
 
 ```{r density-31}
@@ -94,20 +94,21 @@ gestures_tot %>%
   ggplot(aes(count)) +
   geom_density() +
   geom_rug() +
-  geom_vline(xintercept = median(gestures_tot$count), linetype = "dashed", colour = "orange") +
-  geom_vline(xintercept = mean(gestures_tot$count), linetype = "dotted", colour = "blue")
+  geom_vline(xintercept = median(gestures_tot$count, na.rm = TRUE), linetype = "dashed", colour = "orange") +
+  geom_vline(xintercept = mean(gestures_tot$count, na.rm = TRUE), linetype = "dotted", colour = "blue")
 ```
 
 ```{r descdist}
-descdist(gestures_tot$count, discrete = TRUE)
+gest_na <- na.omit(gestures_tot)
+descdist(gest_na$count, discrete = TRUE)
 ```
 
 ```{r pois-plot}
-plot(fitdist(gestures_tot$count, "pois"))
+plot(fitdist(gest_na$count, "pois"))
 ```
 
 ```{r nbinom-plot}
-plot(fitdist(gestures_tot$count, "nbinom"))
+plot(fitdist(gest_na$count, "nbinom"))
 ```
 
 ```{r density-months-gest}
