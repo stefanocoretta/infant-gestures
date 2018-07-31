@@ -75,6 +75,14 @@ utterances %>% group_by(background) %>% summarise(n = n_distinct(dyad))
 
 `gestures` has 21 missing values. `utterances` has 12 missing values.
 
+```{r}
+gestures_tot %>%
+  dplyr::select(-dyad, -months) %>%
+  group_by(gesture, background) %>%
+  summarise_all(mean, na.rm = TRUE)
+```
+
+
 # Plot data
 
 ## Gestures
@@ -116,6 +124,85 @@ gestures_tot %>%
   ggplot(aes(count, fill = as.factor(months))) +
   geom_density(alpha = 0.5) +
   facet_grid(~ gesture)
+```
+
+```{r background-jitter}
+gestures_tot %>%
+  ggplot(aes(as.factor(background), count, colour = background)) +
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  stat_summary(fun.y = median, geom = "point", shape = 18, size = 4, color = "black") +
+  scale_color_brewer(type = "qual", palette = "Dark2")
+```
+
+```{r gest-background-jitter}
+gestures_tot %>%
+  ggplot(aes(as.factor(background), count, colour = background)) +
+  geom_jitter() +
+  stat_summary(fun.y = median, geom = "point", shape = 18, size = 4, color = "black") +
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+  facet_grid(cols = vars(gesture))
+```
+
+```{r gest-months-jitter}
+gestures_tot %>%
+  ggplot(aes(as.factor(months), count)) +
+  geom_jitter() +
+  stat_summary(fun.y = median, geom = "point", shape = 18, size = 4, color = "red") +
+  facet_grid(cols = vars(gesture))
+```
+
+```{r gest-back-month-jitter}
+gestures_tot %>%
+  ggplot(aes(as.factor(months), count)) +
+  geom_jitter(alpha = 0.5, width = 0.15) +
+  stat_summary(fun.y = median, geom = "point", shape = 18, size = 2, color = "red") +
+  facet_grid(vars(background), vars(gesture))
+```
+
+```{r gest-background-jitter-2}
+gestures_tot %>%
+  ggplot(aes(as.factor(months), count)) +
+  geom_jitter(width = 0.15) +
+  stat_summary(fun.y = median, geom = "point", shape = 18, size = 4, color = "red") +
+  facet_wrap(vars(background, gesture), scales = "free")
+```
+
+```{r gest-connect}
+gestures_tot %>%
+  ggplot(aes(as.factor(months), count, colour = background)) +
+  geom_point(alpha = 0.5) +
+  geom_line(aes(group = dyad)) +
+  facet_grid(vars(background), vars(gesture))
+```
+
+```{r gest-connect-ba}
+gestures_tot %>%
+  filter(background == "Bangladeshi") %>%
+  ggplot(aes(as.factor(months), count, colour = dyad)) +
+  geom_point(alpha = 0.5) +
+  geom_line(aes(group = dyad)) +
+  facet_grid(cols = vars(gesture)) +
+  theme(legend.position = "none")
+```
+
+```{r gest-connect-ch}
+gestures_tot %>%
+  filter(background == "Chinese") %>%
+  ggplot(aes(as.factor(months), count, colour = dyad)) +
+  geom_point(alpha = 0.5) +
+  geom_line(aes(group = dyad)) +
+  facet_grid(cols = vars(gesture)) +
+  theme(legend.position = "none")
+```
+
+```{r gest-connect-en}
+gestures_tot %>%
+  filter(background == "English") %>%
+  ggplot(aes(as.factor(months), count, colour = dyad)) +
+  geom_point(alpha = 0.5) +
+  geom_line(aes(group = dyad)) +
+  facet_grid(cols = vars(gesture)) +
+  theme(legend.position = "none")
 ```
 
 ## Utterances
@@ -239,24 +326,84 @@ utterances_tot %>%
 
 ## Utterances and points
 
-```{r}
+```{r utter-point}
 utter_point %>%
   ggplot(aes(utterances, point)) +
   geom_point() +
   geom_smooth(method = "lm")
 ```
 
-```{r}
+```{r utter-point}
 utter_point %>%
   ggplot(aes(utterances, point, colour = as.factor(months))) +
   geom_point() +
   geom_smooth(method = "lm")
 ```
 
-```{r}
+```{r utter-point-months}
 utter_point %>%
   ggplot(aes(utterances, point, colour = as.factor(months))) +
   geom_point() +
   geom_smooth(method = "lm") +
   facet_grid(~ background)
+```
+
+```{r point-lead}
+utter_point_lead <- utter_point %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+```
+
+```{r point-lead-plot}
+utter_point_lead %>%
+  ggplot(aes(utterances, lead_point)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r point-lead-back}
+utter_point_lead %>%
+  ggplot(aes(utterances, lead_point, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+# Points and hold out and gives
+
+```{r point-hg}
+point_hg <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-reach) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_hg = lead(ho_gv)
+  ) %>%
+  filter(months != 12)
+```
+
+```{r point-hg-line}
+point_hg %>%
+  ggplot(aes(point, lead_hg)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r filtered}
+point_hg %>%
+  filter(point < 20) %>%
+  ggplot(aes(point, lead_hg)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r line-background}
+point_hg %>%
+  filter(point < 20) %>%
+  ggplot(aes(point, lead_hg, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm")
 ```
