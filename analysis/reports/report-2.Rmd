@@ -1,0 +1,202 @@
+---
+title: "Report 2 - Infant gestures data"
+date: "03/08/2018"
+output: 
+  pdf_document: 
+    fig_height: 3.5
+    fig_width: 5
+    number_sections: yes
+fontsize: 11pt
+params:
+  version: "v0.9"
+  version-date: "03/08/2018"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.align = "center")
+knitr::opts_knit$set(root.dir = normalizePath("../../"))
+library(tidyverse)
+theme_set(theme_minimal())
+```
+
+```{r read-data, message=FALSE}
+gestures <- read_csv("./data/gestures.csv")
+
+gestures_tot <- gestures %>%
+  group_by(dyad, background, months, gesture) %>%
+  summarise(
+    count = sum(count),
+    ct = sum(ct)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    gesture = factor(gesture, levels = c("reach", "point", "ho_gv"))
+  ) %>%
+  mutate_if(is.character, as.factor)
+```
+
+# Number of infant gestures
+
+This is how the dataset looks like:
+
+```{r gestures-tot}
+gestures_tot
+```
+
+Columns:
+
+* `dyad`: the dyad ID
+* `background`: the background of the dyad (`Bangladeshi`, `Chinese`, `English`)
+* `months`: the age of the child in months (`10:12`)
+* `gesture`: the type of gesture (`reach`, `point`, `ho_gv`)
+* `count`: the number of child gestures
+* `ct`: number of mother's contingent talks
+
+Each gesture type (`reach`, `point`, `ho_gv`) and continget talks have been aggredated within dyad from the counts of the 3 tasks (`five`, `tp1`, `tp2`). There are 519 observations plus 12 missing observations (n = 531).
+
+Number of dyads per background:
+
+```{r n-dyads}
+gestures %>% group_by(background) %>% summarise(n = n_distinct(dyad))
+```
+
+The following graph shows the density distribution of the infant gestures counts. The distribution is the negative binomial.
+
+```{r density, warning=FALSE}
+gestures_tot %>%
+  ggplot(aes(count)) +
+  geom_density() +
+  geom_rug() +
+  geom_vline(xintercept = median(gestures_tot$count, na.rm = TRUE), linetype = "dashed", colour = "orange") +
+  geom_vline(xintercept = mean(gestures_tot$count, na.rm = TRUE), linetype = "dotted", colour = "blue") +
+  labs(
+    title = "Distribution of the number of infant gesture",
+    subtitle = "Orange line = median, blue line = mean.",
+    x = "Infant gestures (count)"
+  )
+```
+
+The following stripchart indicates that English infants have slightly lower median counts of gestures.
+
+```{r background-jitter, warning=FALSE}
+gestures_tot %>%
+  ggplot(aes(as.factor(background), count, colour = background)) +
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  stat_summary(fun.y = median, geom = "point", shape = 18, size = 4, color = "black") +
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+  labs(
+    title = "Number of infant gesture by background",
+    subtitle = "The black diamond is the median.",
+    x = "Background",
+    y = "Infant gestures (count)"
+  )
+```
+
+The number of point gestures does not differ much across background. Reaches and HGs counts tend to be higher for Bangladeshi and Chinese infants.
+
+```{r back-gest-jitter, warning=FALSE}
+gestures_tot %>%
+  ggplot(aes(as.factor(background), count, colour = background)) +
+  geom_jitter(width = 0.3, alpha = 0.6) +
+  stat_summary(fun.y = median, geom = "point", shape = 18, size = 4, color = "black") +
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+  facet_grid(cols = vars(gesture)) +
+  labs(
+    title = "Number of infant gestures by gesture type\nand background",
+    subtitle = "The black diamonds are the medians.",
+    x = "Background",
+    y = "Infant gestures (count)"
+  ) +
+  theme(axis.text.x = element_blank())
+```
+
+The median number of gestures increases with visit time, but more so for the HGs and reach gestures, as shown in the following graph.
+
+```{r months-jitter, warning=FALSE}
+gestures_tot %>%
+  ggplot(aes(as.factor(months), count)) +
+  geom_jitter(alpha = 0.6, width = 0.3) +
+  stat_summary(fun.y = median, geom = "point", shape = 18, size = 4, color = "red") +
+  facet_grid(cols = vars(gesture)) +
+  labs(
+    title = "Number of gestures by gesture type\nand visit time",
+    subtitle = "The red diamonds are medians.",
+    x = "Visit time (infant age in months)",
+    y = "Infant gestures (count)"
+  )
+```
+
+# Number of gestures by infant, background, and visit time
+
+In the following connected points plot, a point is plotted for each infant at each visit time (10, 11, 12), and the points of an infant are connected by a line. The lines show the change in number of gestures of each single infant across visit time.
+
+```{r gest-connect, warning=FALSE, fig.dim=c(6, 5)}
+gestures_tot %>%
+  ggplot(aes(as.factor(months), count, colour = background)) +
+  geom_point(alpha = 0.5) +
+  geom_line(aes(group = dyad)) +
+  facet_grid(vars(background), vars(gesture)) +
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+  labs(
+    title = "Number of gestures by gesture type,\nbackground and visit time",
+    x = "Visit time (infant age in months)",
+    y = "Infant gestures (count)"
+  ) +
+  theme(legend.position = "top")
+```
+
+In general, there is an increase of gesture counts for all infants and backgrounds, but more so with point and HG gestures. The increase is greater in HGs of Bangladeshi and Chinese infants.
+
+The following plots show connected points for each background. Each infant is assigned a different colour.
+
+```{r gest-connect-ba, warning=FALSE}
+gestures_tot %>%
+  filter(background == "Bangladeshi") %>%
+  ggplot(aes(as.factor(months), count, colour = dyad)) +
+  geom_point(alpha = 0.5) +
+  geom_line(aes(group = dyad)) +
+  facet_grid(cols = vars(gesture)) +
+  theme(legend.position = "none") +
+  labs(
+    title = "Number of gestures by gesture type and visit time",
+    subtitle = "Bangladeshi infants.",
+    x = "Visit time (infant age in months)",
+    y = "Infant gestures (count)"
+  )
+```
+
+```{r gest-connect-ch, warning=FALSE}
+gestures_tot %>%
+  filter(background == "Chinese") %>%
+  ggplot(aes(as.factor(months), count, colour = dyad)) +
+  geom_point(alpha = 0.5) +
+  geom_line(aes(group = dyad)) +
+  facet_grid(cols = vars(gesture)) +
+  theme(legend.position = "none") +
+  labs(
+    title = "Number of gestures by gesture type and visit time",
+    subtitle = "Chinese infants.",
+    x = "Visit time (infant age in months)",
+    y = "Infant gestures (count)"
+  )
+```
+
+```{r gest-connect-en, warning=FALSE}
+gestures_tot %>%
+  filter(background == "English") %>%
+  ggplot(aes(as.factor(months), count, colour = dyad)) +
+  geom_point(alpha = 0.5) +
+  geom_line(aes(group = dyad)) +
+  facet_grid(cols = vars(gesture)) +
+  theme(legend.position = "none") +
+  labs(
+    title = "Number of gestures by gesture type and visit time",
+    subtitle = "English infants.",
+    x = "Visit time (infant age in months)",
+    y = "Infant gestures (count)"
+  )
+```
+
+# Number of mother's contingent talks
+
