@@ -1,8 +1,8 @@
 ---
 title: "Report 2 - Infant gestures data"
 date: "03/08/2018"
-output: 
-  pdf_document: 
+output:
+  pdf_document:
     fig_height: 3.5
     fig_width: 5
     number_sections: yes
@@ -53,7 +53,7 @@ Columns:
 * `count`: the number of child gestures
 * `ct`: number of mother's contingent talks
 
-Each gesture type (`reach`, `point`, `ho_gv`) and continget talks have been aggredated within dyad from the counts of the 3 tasks (`five`, `tp1`, `tp2`). There are 519 observations plus 12 missing observations (n = 531).
+Each gesture type (`reach`, `point`, `ho_gv`) and contingent talks have been aggregated within dyad from the counts of the 3 tasks (`five`, `tp1`, `tp2`). There are 519 observations plus 12 missing observations (n = 531).
 
 Number of dyads per background:
 
@@ -93,7 +93,7 @@ gestures_tot %>%
   )
 ```
 
-The number of point gestures does not differ much across background. Reaches and HGs counts tend to be higher for Bangladeshi and Chinese infants.
+The number of point gestures does not differ much across background. Reaches and HG counts tend to be higher for Bangladeshi and Chinese infants.
 
 ```{r back-gest-jitter, warning=FALSE}
 gestures_tot %>%
@@ -111,7 +111,7 @@ gestures_tot %>%
   theme(axis.text.x = element_blank())
 ```
 
-The median number of gestures increases with visit time, but more so for the HGs and reach gestures, as shown in the following graph.
+The median number of gestures increases with visit time, but more so for the HG and reach gestures, as shown in the following graph.
 
 ```{r months-jitter, warning=FALSE}
 gestures_tot %>%
@@ -198,5 +198,4 @@ gestures_tot %>%
   )
 ```
 
-# Number of mother's contingent talks
-
+<!-- # Number of mother's contingent talks -->
