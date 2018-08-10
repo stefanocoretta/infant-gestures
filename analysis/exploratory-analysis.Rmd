@@ -371,7 +371,7 @@ utter_point_lead %>%
   geom_smooth(method = "lm")
 ```
 
-# Points and hold out and gives
+## Points and hold out and gives
 
 ```{r point-hg}
 point_hg <- gestures_tot %>%
@@ -407,3 +407,83 @@ point_hg %>%
   geom_point() +
   geom_smooth(method = "lm")
 ```
+
+## Mother's contingent talks
+
+```{r ct-density}
+gestures_tot %>%
+  ggplot(aes(ct)) +
+  geom_density()
+```
+
+Not many contingent talks.
+
+```{r ct-gest-density}
+gestures_tot %>%
+  ggplot(aes(ct, fill = gesture)) +
+  geom_density(alpha = 0.5)
+```
+
+```{r t-hist}
+gestures_tot %>%
+  ggplot(aes(ct, fill = gesture)) +
+  geom_histogram() +
+  facet_grid(~ gesture)
+```
+
+```{r ct-hist-2}
+gestures_tot %>%
+  ggplot(aes(ct, fill = gesture)) +
+  geom_histogram() +
+  facet_grid(background ~ gesture)
+```
+
+```{r ct-jitt}
+gestures_tot %>%
+  ggplot(aes(as.factor(months), ct)) +
+  geom_jitter(width = 0.2, alpha = 0.3)
+```
+
+There isa big outlier and it is e05, which is also the super pointer., if I am not mistaken.
+
+```{r ct-jitt-med}
+gestures_tot %>%
+  filter(ct < 20) %>%
+  ggplot(aes(as.factor(months), ct)) +
+  geom_jitter(width = 0.2, alpha = 0.3) +
+  stat_summary(fun.y = median, geom = "point", shape = 18, size = 5, color = "red")
+```
+
+```{r ct-jitt-mean}
+gestures_tot %>%
+  filter(ct < 20) %>%
+  ggplot(aes(as.factor(months), ct)) +
+  geom_jitter(width = 0.2, alpha = 0.3) +
+  stat_summary(fun.y = mean, geom = "point", shape = 18, size = 5, color = "red")
+```
+
+It looks like there is an increase over visit time, but mean shows it (not median, not surprising since there are a lot of 0 CTs).
+
+```{r ct-connect}
+gestures_tot %>%
+  filter(ct < 20) %>%
+  ggplot(aes(as.factor(months), ct, group = dyad, colour = gesture)) +
+  geom_point() +
+  geom_line(alpha = 0.2) +
+  facet_grid(gesture ~ .) +
+  scale_color_brewer(type = "qual", palette = "Dark2")
+```
+
+But indeed there are a few mothers that show an increase.
+
+```{r ct-connect-background}
+gestures_tot %>%
+  filter(ct < 20) %>%
+  ggplot(aes(as.factor(months), ct, group = dyad, colour = background)) +
+  geom_point() +
+  geom_line(alpha = 0.2) +
+  facet_grid(background ~ gesture) +
+  scale_color_brewer(type = "qual", palette = "Dark2")
+```
+
+The mothers with increasing CTs are mostly Chinese and English.
