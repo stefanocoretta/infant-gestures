@@ -1,0 +1,137 @@
+---
+title: "Report 3 - Mothers' contingent talks"
+author: "Stefano Coretta"
+date: "13/08/2018"
+output:
+  pdf_document:
+    fig_height: 3.5
+    fig_width: 5
+    number_sections: yes
+fontsize: 11pt
+params:
+  version: "v1.0"
+  version-date: "13/08/2018"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.align = "center")
+knitr::opts_knit$set(root.dir = normalizePath("../../"))
+library(tidyverse)
+theme_set(theme_minimal())
+scale_colour_discrete <- function(...) scale_color_brewer(..., type = "qual", palette = "Dark2")
+scale_fill_discrete <- function(...) scale_fill_brewer(..., type = "qual", palette = "Dark2")
+```
+
+```{r read-data, message=FALSE}
+gestures <- read_csv("./data/gestures.csv")
+
+gestures_tot <- gestures %>%
+  group_by(dyad, background, months, gesture) %>%
+  summarise(
+    count = sum(count),
+    ct = sum(ct)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    gesture = factor(gesture, levels = c("reach", "point", "ho_gv"))
+  ) %>%
+  mutate_if(is.character, as.factor)
+```
+
+For information on the data set, see Report 2.
+
+The following histogram shows counts of the mothers' contingent talks by gesture type. There are a lot of 0s in all gestures.
+
+```{r ct-hist, warning=FALSE}
+gestures_tot %>%
+  ggplot(aes(ct, fill = gesture)) +
+  geom_histogram(binwidth = 3) +
+  facet_grid(~ gesture) +
+  labs(
+    title = "Number of mothers' contingent talks by gesture type",
+    x = "Contingent talks"
+  )
+```
+
+The situation is quite similar across cultural backgrounds. There is an appreaciable outlier mother in the point English data: she is the mother of the 'super pointer' (E05).
+
+```{r ct-hist-2, warning=FALSE}
+gestures_tot %>%
+  ggplot(aes(ct, fill = background)) +
+  geom_histogram(binwidth = 3) +
+  facet_grid(background ~ gesture) +
+  labs(
+    title = "Number of contingent talks by gesture and background",
+    x = "Contingent talks"
+  )
+```
+
+The medians in the stripchart below do not show a visible increase of contingent talks over time.
+
+```{r ct-jitt-med}
+gestures_tot %>%
+  filter(ct < 20) %>%
+  ggplot(aes(as.factor(months), ct)) +
+  geom_jitter(width = 0.2, alpha = 0.3) +
+  stat_summary(fun.y = median, geom = "point", shape = 18, size = 5, color = "red") +
+  labs(
+    title = "Stripchart of contingent talk counts over visit time",
+    subtitle = "The red diamonds are medians",
+    caption = "Excluding E05",
+    x = "Visit time (child's months)",
+    y = "Contingent talks (count)"
+  )
+```
+
+Although the mean instead shows a count increase (it is not surprising that the mean and not the meadian shows the increase, given the high number of 0s in the data).
+
+```{r ct-jitt-mean}
+gestures_tot %>%
+  filter(ct < 20) %>%
+  ggplot(aes(as.factor(months), ct)) +
+  geom_jitter(width = 0.2, alpha = 0.3) +
+  stat_summary(fun.y = mean, geom = "point", shape = 18, size = 5, color = "red") +
+  labs(
+    title = "Stripchart of contingent talk counts over visit time",
+    subtitle = "The red diamonds are means",
+    caption = "Excluding E05",
+    x = "Visit time (child's months)",
+    y = "Contingent talks (count)"
+  )
+```
+
+Indeed, there are mothers that increase the number of contingent talks through visit time, especially in releation to the child's points and HGs.
+
+```{r ct-connect}
+gestures_tot %>%
+  filter(ct < 20) %>%
+  ggplot(aes(as.factor(months), ct, group = dyad, colour = gesture)) +
+  geom_point() +
+  geom_line(alpha = 0.2) +
+  facet_grid(~ gesture) +
+  labs(
+    title = "Contingent talk counts over visit time by gesture type",
+    caption = "Excluding E05",
+    x = "Visit time (child's months)",
+    y = "Contingent talks (count)"
+  )
+```
+
+The mothers with increasing CTs are mostly Chinese and English.
+
+```{r ct-connect-background, fig.dim = c(7, 6)}
+gestures_tot %>%
+  filter(ct < 20) %>%
+  ggplot(aes(as.factor(months), ct, group = dyad, colour = background)) +
+  geom_point() +
+  geom_line(alpha = 0.2) +
+  facet_grid(background ~ gesture) +
+  labs(
+    title = "Contingent talk counts over visit time by gesture type and background",
+    caption = "Excluding E05",
+    x = "Visit time (child's months)",
+    y = "Contingent talks (count)"
+  ) +
+  theme(legend.position = "top")
+```
