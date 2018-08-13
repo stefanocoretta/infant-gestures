@@ -444,7 +444,7 @@ gestures_tot %>%
   geom_jitter(width = 0.2, alpha = 0.3)
 ```
 
-There isa big outlier and it is e05, which is also the super pointer., if I am not mistaken.
+There is a big outlier and it is e05, which is also the super pointer, if I am not mistaken.
 
 ```{r ct-jitt-med}
 gestures_tot %>%
