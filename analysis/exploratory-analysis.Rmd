@@ -10,9 +10,9 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = normalizePath("../"))
+library(fitdistrplus)
 library(tidyverse)
 theme_set(theme_minimal())
-library(fitdistrplus)
 ```
 
 # Read data
@@ -407,6 +407,26 @@ point_hg %>%
   geom_point() +
   geom_smooth(method = "lm")
 ```
+
+```{r hg-point-lead}
+hg_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-reach) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+```
+
+```{r}
+hg_point_lead %>%
+  ggplot(aes(ho_gv, lead_point)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
 
 ## Mother's contingent talks
 
