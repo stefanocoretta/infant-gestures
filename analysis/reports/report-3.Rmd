@@ -8,7 +8,7 @@ output:
     number_sections: yes
 fontsize: 11pt
 params:
-  version: "v2.9"
+  version: "v3.0"
   version-date: "13/08/2018"
 ---
 
