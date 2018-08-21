@@ -427,6 +427,20 @@ hg_point_lead %>%
   geom_smooth(method = "lm")
 ```
 
+```{r}
+hg_point_lead %>%
+  ggplot(aes(ho_gv, lead_point, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r}
+hg_point_lead %>%
+  filter(ho_gv < 20) %>%
+  ggplot(aes(ho_gv, lead_point, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
 
 ## Mother's contingent talks
 
@@ -507,3 +521,38 @@ gestures_tot %>%
 ```
 
 The mothers with increasing CTs are mostly Chinese and English.
+
+```{r ct-point-lead}
+ct_point_lead <- gestures_tot %>%
+  filter(gesture == "point") %>%
+  select(-gesture) %>%
+  rename(point = count) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+```
+
+```{r ct-point-lead}
+ct_point_lead %>%
+  ggplot(aes(ct, lead_point)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r ct-point-lead-regression}
+ct_point_lead %>%
+  filter(ct < 20) %>%
+  ggplot(aes(ct, lead_point)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r ct-point-lead-regression-background}
+ct_point_lead %>%
+  filter(ct < 20) %>%
+  ggplot(aes(ct, lead_point, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
