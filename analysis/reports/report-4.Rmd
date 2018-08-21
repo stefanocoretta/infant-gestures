@@ -1,0 +1,158 @@
+---
+title: "Predicting pointing gestures from HGs, contingent talks, and utterances"
+date: "21/08/2018"
+output: pdf_document
+params:
+  version: "v0.9"
+  version-date: "21/08/2018"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.align = "center")
+knitr::opts_knit$set(root.dir = normalizePath("../../"))
+library(fitdistrplus)
+library(tidyverse)
+theme_set(theme_minimal())
+```
+
+```{r read-data, message=FALSE}
+gestures <- read_csv("./data/gestures.csv")
+
+gestures_tot <- gestures %>%
+  group_by(dyad, background, months, gesture) %>%
+  summarise(
+    count = sum(count),
+    ct = sum(ct)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    gesture = factor(gesture, levels = c("reach", "point", "ho_gv"))
+  ) %>%
+  mutate_if(is.character, as.factor)
+
+utterances <- read_csv("./data/utterances.csv")
+
+# NAs not removed in sum()
+utterances_tot <- utterances %>%
+  group_by(dyad, background, months) %>%
+  summarise(
+    utterances = sum(utterances)
+  ) %>%
+  ungroup() %>%
+  mutate_if(is.character, as.factor)
+
+point <- gestures %>%
+  filter(gesture == "point") %>%
+  group_by(dyad, background, months) %>%
+  summarise(
+    count = sum(count)
+  ) %>%
+  ungroup() %>%
+  mutate_if(is.character, as.factor)
+
+utter_point <- left_join(utterances_tot, point) %>%
+  rename(point = count)
+
+utterances_compl <- utterances %>% na.omit()
+utterances_tcompl <- utterances_tot %>% na.omit()
+```
+
+```{r point-lead}
+utter_point_lead <- utter_point %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+```
+
+```{r point-lead-plot}
+utter_point_lead %>%
+  ggplot(aes(utterances, lead_point)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r point-lead-back}
+utter_point_lead %>%
+  ggplot(aes(utterances, lead_point, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+
+
+
+
+```{r hg-point-lead}
+hg_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-reach) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+```
+
+```{r hg-point-lead}
+hg_point_lead %>%
+  ggplot(aes(ho_gv, lead_point)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r hg-point-lead-regression}
+hg_point_lead %>%
+  ggplot(aes(ho_gv, lead_point, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r hg-point-lead-regression-2}
+hg_point_lead %>%
+  filter(ho_gv < 20) %>%
+  ggplot(aes(ho_gv, lead_point, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+
+
+
+
+```{r ct-point-lead}
+ct_point_lead <- gestures_tot %>%
+  filter(gesture == "point") %>%
+  select(-gesture) %>%
+  rename(point = count) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+```
+
+```{r ct-point-lead}
+ct_point_lead %>%
+  ggplot(aes(ct, lead_point)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r ct-point-lead-regression}
+ct_point_lead %>%
+  filter(ct < 20) %>%
+  ggplot(aes(ct, lead_point)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r ct-point-lead-regression-background}
+ct_point_lead %>%
+  filter(ct < 20) %>%
+  ggplot(aes(ct, lead_point, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
