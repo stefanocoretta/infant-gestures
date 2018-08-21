@@ -1,6 +1,5 @@
 ---
 title: "Report 3 - Mothers' contingent talks"
-author: "Stefano Coretta"
 date: "13/08/2018"
 output:
   pdf_document:
@@ -9,7 +8,7 @@ output:
     number_sections: yes
 fontsize: 11pt
 params:
-  version: "v1.0"
+  version: "v2.0"
   version-date: "13/08/2018"
 ---
 
