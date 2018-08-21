@@ -8,12 +8,11 @@ output:
     number_sections: yes
 fontsize: 11pt
 params:
-  version: "v2.0"
+  version: "v2.9"
   version-date: "13/08/2018"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(echo = FALSE, fig.align = "center")
 knitr::opts_knit$set(root.dir = normalizePath("../../"))
 library(tidyverse)
