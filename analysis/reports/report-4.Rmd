@@ -18,6 +18,8 @@ knitr::opts_knit$set(root.dir = normalizePath("../../"))
 library(fitdistrplus)
 library(tidyverse)
 theme_set(theme_minimal())
+scale_colour_discrete <- function(...) scale_color_brewer(..., type = "qual", palette = "Dark2")
+scale_fill_discrete <- function(...) scale_fill_brewer(..., type = "qual", palette = "Dark2")
 ```
 
 ```{r read-data, message=FALSE}
