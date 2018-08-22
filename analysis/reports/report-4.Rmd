@@ -1,7 +1,12 @@
 ---
 title: "Predicting pointing gestures from HGs, contingent talks, and utterances"
 date: "21/08/2018"
-output: pdf_document
+output:
+  pdf_document:
+    fig_height: 3.5
+    fig_width: 5
+    number_sections: yes
+fontsize: 11pt
 params:
   version: "v0.9"
   version-date: "21/08/2018"
@@ -55,36 +60,14 @@ utter_point <- left_join(utterances_tot, point) %>%
 
 utterances_compl <- utterances %>% na.omit()
 utterances_tcompl <- utterances_tot %>% na.omit()
-```
 
-```{r point-lead}
 utter_point_lead <- utter_point %>%
   group_by(dyad) %>%
   mutate(
     lead_point = lead(point)
   ) %>%
   filter(months != 12)
-```
 
-```{r point-lead-plot}
-utter_point_lead %>%
-  ggplot(aes(utterances, lead_point)) +
-  geom_point() +
-  geom_smooth(method = "lm")
-```
-
-```{r point-lead-back}
-utter_point_lead %>%
-  ggplot(aes(utterances, lead_point, colour = background)) +
-  geom_point() +
-  geom_smooth(method = "lm")
-```
-
-
-
-
-
-```{r hg-point-lead}
 hg_point_lead <- gestures_tot %>%
   dplyr::select(-ct) %>%
   spread(gesture, count) %>%
@@ -94,35 +77,7 @@ hg_point_lead <- gestures_tot %>%
     lead_point = lead(point)
   ) %>%
   filter(months != 12)
-```
 
-```{r hg-point-lead}
-hg_point_lead %>%
-  ggplot(aes(ho_gv, lead_point)) +
-  geom_point() +
-  geom_smooth(method = "lm")
-```
-
-```{r hg-point-lead-regression}
-hg_point_lead %>%
-  ggplot(aes(ho_gv, lead_point, colour = background)) +
-  geom_point() +
-  geom_smooth(method = "lm")
-```
-
-```{r hg-point-lead-regression-2}
-hg_point_lead %>%
-  filter(ho_gv < 20) %>%
-  ggplot(aes(ho_gv, lead_point, colour = background)) +
-  geom_point() +
-  geom_smooth(method = "lm")
-```
-
-
-
-
-
-```{r ct-point-lead}
 ct_point_lead <- gestures_tot %>%
   filter(gesture == "point") %>%
   select(-gesture) %>%
@@ -134,25 +89,132 @@ ct_point_lead <- gestures_tot %>%
   filter(months != 12)
 ```
 
-```{r ct-point-lead}
+# Maternal utterancese and infant pointing
+
+There is a very small correlation between number of maternal utterances and the number of point gestures in the following visit.
+
+```{r point-lead-plot, warning=FALSE}
+utter_point_lead %>%
+  ggplot(aes(utterances, lead_point)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Prediction of number of points based on previous visit\nutterances counts",
+    x = "Maternal utterances (count)",
+    y = "Infant pointing gestures (count)"
+  )
+```
+
+There seems to be no major difference between backgrounds.
+
+```{r point-lead-back, warning=FALSE}
+utter_point_lead %>%
+  ggplot(aes(utterances, lead_point, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Prediction of number of points based on previous visit\nutterances counts by background",
+    x = "Maternal utterances (count)",
+    y = "Infant pointing gestures (count)"
+  )
+```
+
+# Hold-out and gives and pointing
+
+Hould-out and gives and pointing at next visit do not seem to be correlated, but there are three significant outliers.
+
+```{r hg-point-lead, warning=FALSE}
+hg_point_lead %>%
+  ggplot(aes(ho_gv, lead_point)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Prediction of number of points based on previous visit\nhould-out and gives",
+    x = "Infant hold-out and gves (count)",
+    y = "Infant pointing gestures (count)"
+  )
+```
+
+Possibly, there is a correlation in the English data.
+
+```{r hg-point-lead-regression, warning=FALSE}
+hg_point_lead %>%
+  ggplot(aes(ho_gv, lead_point, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Prediction of number of points based on previous visit\nhould-out and gives by background",
+    x = "Infant hold-out and gves (count)",
+    y = "Infant pointing gestures (count)"
+  )
+```
+
+Even when removing outliers, Chinese and Bangladeshi do not show a correlation.
+
+```{r hg-point-lead-regression-2, warning=FALSE}
+hg_point_lead %>%
+  filter(ho_gv < 20) %>%
+  ggplot(aes(ho_gv, lead_point, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Prediction of number of points based on previous visit\nhould-out and gives by background",
+    subtitle = "Excluding outliers.",
+    x = "Infant hold-out and gves (count)",
+    y = "Infant pointing gestures (count)"
+  )
+```
+
+# Maternal contingent talks and infant pointing
+
+There might be a correlation between pointing gestures and maternal contingent talks of the previous visit.
+
+```{r ct-point-lead, warning=FALSE}
 ct_point_lead %>%
   ggplot(aes(ct, lead_point)) +
   geom_point() +
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Prediction of number of points based on previous visit\nmaternal contingent talks",
+    x = "Maternal contingent talks (count)",
+    y = "Infant pointing gestures (count)"
+  )
 ```
 
-```{r ct-point-lead-regression}
+Even when removing outliers, the correlation stays.
+
+```{r ct-point-lead-regression, warning=FALSE}
 ct_point_lead %>%
   filter(ct < 20) %>%
   ggplot(aes(ct, lead_point)) +
   geom_point() +
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Prediction of number of points based on previous visit\nmaternal contingent talks",
+    subtitle = "Excluding outliers.",
+    x = "Maternal contingent talks (count)",
+    y = "Infant pointing gestures (count)"
+  )
 ```
 
-```{r ct-point-lead-regression-background}
+All backgrounds seem to show the correlation (but the Bangladeshi data is quite scant at higher CT counts).
+
+```{r ct-point-lead-regression-background, warning=FALSE}
 ct_point_lead %>%
   filter(ct < 20) %>%
   ggplot(aes(ct, lead_point, colour = background)) +
   geom_point() +
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Prediction of number of points based on previous visit\nmaternal contingent talks by background",
+    subtitle = "Excluding outliers.",
+    x = "Maternal contingent talks (count)",
+    y = "Infant pointing gestures (count)"
+  )
 ```
+
+# General observations
+
+For the cases that show a correlation, it must be noted that the confidence intervals are in general quite wide, meaning that we are not very sure about the presence of said correlations.
+
+Another issue is that there are a lot of counts = 0, then a few data points with counts between 1 and 7.
