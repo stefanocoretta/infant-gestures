@@ -8,8 +8,8 @@ output:
     number_sections: yes
 fontsize: 11pt
 params:
-  version: "v0.9"
-  version-date: "21/08/2018"
+  version: "v1.0"
+  version-date: "22/08/2018"
 ---
 
 ```{r setup, include=FALSE}
@@ -93,7 +93,7 @@ ct_point_lead <- gestures_tot %>%
 
 # Maternal utterancese and infant pointing
 
-There is a very small correlation between number of maternal utterances and the number of point gestures in the following visit.
+There is a very small correlation between number of point gestures and number of maternal utterances of the previous visit.
 
 ```{r point-lead-plot, warning=FALSE}
 utter_point_lead %>%
@@ -123,7 +123,7 @@ utter_point_lead %>%
 
 # Hold-out and gives and pointing
 
-Hould-out and gives and pointing at next visit do not seem to be correlated, but there are three significant outliers.
+Hould-out and gives at the previous visit and pointing do not seem to be correlated, but there are three significant outliers.
 
 ```{r hg-point-lead, warning=FALSE}
 hg_point_lead %>%
@@ -132,7 +132,7 @@ hg_point_lead %>%
   geom_smooth(method = "lm") +
   labs(
     title = "Prediction of number of points based on previous visit\nhould-out and gives",
-    x = "Infant hold-out and gves (count)",
+    x = "Infant hold-out and gives (count)",
     y = "Infant pointing gestures (count)"
   )
 ```
@@ -146,7 +146,7 @@ hg_point_lead %>%
   geom_smooth(method = "lm") +
   labs(
     title = "Prediction of number of points based on previous visit\nhould-out and gives by background",
-    x = "Infant hold-out and gves (count)",
+    x = "Infant hold-out and gives (count)",
     y = "Infant pointing gestures (count)"
   )
 ```
@@ -162,7 +162,7 @@ hg_point_lead %>%
   labs(
     title = "Prediction of number of points based on previous visit\nhould-out and gives by background",
     subtitle = "Excluding outliers.",
-    x = "Infant hold-out and gves (count)",
+    x = "Infant hold-out and gives (count)",
     y = "Infant pointing gestures (count)"
   )
 ```
