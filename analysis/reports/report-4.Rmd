@@ -8,8 +8,8 @@ output:
     number_sections: yes
 fontsize: 11pt
 params:
-  version: "v1.0"
-  version-date: "22/08/2018"
+  version: "v2.0"
+  version-date: "24/08/2018"
 ---
 
 ```{r setup, include=FALSE}
@@ -74,6 +74,16 @@ hg_point_lead <- gestures_tot %>%
   dplyr::select(-ct) %>%
   spread(gesture, count) %>%
   dplyr::select(-reach) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+reaches_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-ho_gv) %>%
   group_by(dyad) %>%
   mutate(
     lead_point = lead(point)
@@ -163,6 +173,36 @@ hg_point_lead %>%
     title = "Prediction of number of points based on previous visit\nhould-out and gives by background",
     subtitle = "Excluding outliers.",
     x = "Infant hold-out and gives (count)",
+    y = "Infant pointing gestures (count)"
+  )
+```
+
+# Reaches and pointing
+
+Pointing is not correlated with previous visit reaches.
+
+```{r reach-point-lead, warning=FALSE}
+reaches_point_lead %>%
+  ggplot(aes(reach, lead_point)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Prediction of number of points based on previous visit\nreaches",
+    x = "Infant reaches (count)",
+    y = "Infant pointing gestures (count)"
+  )
+```
+
+While HGs seem to correlate with pointing at least in English (see previous section), reaches do not correlate with pointing even in English.
+
+```{r reaches-point-lead-regression, warning=FALSE}
+reaches_point_lead %>%
+  ggplot(aes(reach, lead_point, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Prediction of number of points based on previous visit\nreaches by background",
+    x = "Infant reaches (count)",
     y = "Infant pointing gestures (count)"
   )
 ```
