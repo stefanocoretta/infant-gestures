@@ -1,0 +1,55 @@
+---
+title: "Significance testing"
+author: "Stefano Coretta"
+date: "30/08/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath("../"))
+library(tidyverse)
+theme_set(theme_minimal())
+library(itsadug)
+library(tidymv)
+```
+
+```{r read-data, message=FALSE}
+gestures <- read_csv("./data/gestures.csv")
+
+gestures_tot <- gestures %>%
+  group_by(dyad, background, months, gesture) %>%
+  summarise(
+    count = sum(count),
+    ct = sum(ct)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    gesture = factor(gesture, levels = c("reach", "point", "ho_gv"))
+  ) %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(
+    back_o = ordered(background, levels = c("English", "Bangladeshi", "Chinese"))
+  )
+
+contrasts(gestures_tot$back_o) <- "contr.treatment"
+```
+
+## HGs development
+
+```{r}
+hg_gam <- gam(
+  count ~
+    back_o +
+    s(months, k = 3) +
+    s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = filter(gestures_tot, gesture == "ho_gv")
+)
+summary(hg_gam)
+```
+
+```{r}
+plot_smooths(hg_gam, months, facet_terms = back_o, series_length = 3)
+```
+
