@@ -33,23 +33,204 @@ gestures_tot <- gestures %>%
   )
 
 contrasts(gestures_tot$back_o) <- "contr.treatment"
+
+utterances <- read_csv("./data/utterances.csv")
+
+# NAs not removed in sum()
+utterances_tot <- utterances %>%
+  group_by(dyad, background, months) %>%
+  summarise(
+    utterances = sum(utterances)
+  ) %>%
+  ungroup() %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(
+    back_o = ordered(background, levels = c("English", "Bangladeshi", "Chinese"))
+  )
 ```
 
 ## HGs development
 
-```{r}
+```{r hg-gam}
 hg_gam <- gam(
   count ~
     back_o +
     s(months, k = 3) +
     s(months, k = 3, by = back_o) +
     s(months, dyad, k = 2, bs = "fs", m = 1),
-  data = filter(gestures_tot, gesture == "ho_gv")
+  data = filter(gestures_tot, gesture == "ho_gv"),
+  method = "ML"
 )
 summary(hg_gam)
+
+hg_gam_null <- gam(
+  count ~
+    # back_o +
+    s(months, k = 3) +
+    # s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = filter(gestures_tot, gesture == "ho_gv"),
+  method = "ML"
+)
+
+compareML(hg_gam_null, hg_gam)
 ```
 
-```{r}
-plot_smooths(hg_gam, months, facet_terms = back_o, series_length = 3)
+```{r hg-gam-plot}
+plot_smooths(hg_gam, months, facet_terms = back_o, series_length = 25)
 ```
 
+## Reach development
+
+```{r reach-gam}
+reach_gam <- gam(
+  count ~
+    back_o +
+    s(months, k = 3) +
+    s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = filter(gestures_tot, gesture == "reach"),
+  method = "ML"
+)
+summary(reach_gam)
+
+reach_gam_null <- gam(
+  count ~
+    # back_o +
+    s(months, k = 3) +
+    # s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = filter(gestures_tot, gesture == "reach"),
+  method = "ML"
+)
+
+compareML(reach_gam_null, reach_gam)
+```
+
+```{r hg-gam-plot}
+plot_smooths(reach_gam, months, facet_terms = back_o, series_length = 25)
+```
+
+## Point development
+
+```{r point-gam}
+point_gam <- gam(
+  count ~
+    back_o +
+    s(months, k = 3) +
+    s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = filter(gestures_tot, gesture == "point"),
+  method = "ML"
+)
+summary(point_gam)
+
+point_gam_null <- gam(
+  count ~
+    # back_o +
+    s(months, k = 3) +
+    # s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = filter(gestures_tot, gesture == "point"),
+  method = "ML"
+)
+
+compareML(point_gam_null, point_gam)
+```
+
+```{r hg-gam-plot}
+plot_smooths(point_gam, months, facet_terms = back_o, series_length = 25)
+```
+
+## All gestures
+
+```{r all-gam}
+all_gam <- gam(
+  count ~
+    back_o +
+    s(months, k = 3) +
+    s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = gestures_tot,
+  method = "ML"
+)
+summary(all_gam)
+
+all_gam_null <- gam(
+  count ~
+    # back_o +
+    s(months, k = 3) +
+    # s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = gestures_tot,
+  method = "ML"
+)
+
+compareML(all_gam_null, all_gam)
+```
+
+```{r hg-gam-plot}
+plot_smooths(all_gam, months, facet_terms = back_o, series_length = 25)
+```
+
+## Mother utterances
+
+```{r utter-gam}
+utter_gam <- gam(
+  utterances ~
+    back_o +
+    s(months, k = 3) +
+    s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = utterances_tot,
+  method = "ML"
+)
+summary(utter_gam)
+
+utter_gam_null <- gam(
+  utterances ~
+    # back_o +
+    s(months, k = 3) +
+    # s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = utterances_tot,
+  method = "ML"
+)
+
+compareML(utter_gam_null, utter_gam)
+```
+
+```{r hg-gam-plot}
+plot_smooths(utter_gam, months, facet_terms = back_o, series_length = 10)
+```
+
+## Maternal CT
+
+```{r ct-gam}
+ct_gam <- gam(
+  ct ~
+    back_o +
+    s(months, k = 3) +
+    s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = gestures_tot,
+  method = "ML"
+)
+summary(ct_gam)
+
+ct_gam_null <- gam(
+  ct ~
+    # back_o +
+    s(months, k = 3) +
+    # s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = gestures_tot,
+  method = "ML"
+)
+
+compareML(ct_gam_null, ct_gam)
+```
+
+```{r hg-gam-plot}
+plot_smooths(ct_gam, months, facet_terms = back_o, series_length = 10)
+```
