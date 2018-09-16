@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = normalizePath("../"))
+library(MASS)
 library(tidyverse)
 theme_set(theme_minimal())
 library(itsadug)
@@ -52,6 +53,8 @@ utterances_tot <- utterances %>%
 ## HGs development
 
 ```{r hg-gam}
+hg_nb <- glm.nb(count ~ months, data = filter(gestures_tot, gesture == "ho_gv"))
+
 hg_gam <- gam(
   count ~
     back_o +
@@ -59,7 +62,8 @@ hg_gam <- gam(
     s(months, k = 3, by = back_o) +
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = filter(gestures_tot, gesture == "ho_gv"),
-  method = "ML"
+  method = "ML",
+  family = negbin(0.6434)
 )
 summary(hg_gam)
 
@@ -70,7 +74,8 @@ hg_gam_null <- gam(
     # s(months, k = 3, by = back_o) +
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = filter(gestures_tot, gesture == "ho_gv"),
-  method = "ML"
+  method = "ML",
+  family = negbin(0.6434)
 )
 
 compareML(hg_gam_null, hg_gam)
@@ -83,6 +88,8 @@ plot_smooths(hg_gam, months, facet_terms = back_o, series_length = 25)
 ## Reach development
 
 ```{r reach-gam}
+reach_nb <- glm.nb(count ~ months, data = filter(gestures_tot, gesture == "reach"))
+
 reach_gam <- gam(
   count ~
     back_o +
@@ -90,7 +97,8 @@ reach_gam <- gam(
     s(months, k = 3, by = back_o) +
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = filter(gestures_tot, gesture == "reach"),
-  method = "ML"
+  method = "ML",
+  family = negbin(0.986)
 )
 summary(reach_gam)
 
@@ -101,7 +109,8 @@ reach_gam_null <- gam(
     # s(months, k = 3, by = back_o) +
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = filter(gestures_tot, gesture == "reach"),
-  method = "ML"
+  method = "ML",
+  family = negbin(0.986)
 )
 
 compareML(reach_gam_null, reach_gam)
@@ -114,6 +123,8 @@ plot_smooths(reach_gam, months, facet_terms = back_o, series_length = 25)
 ## Point development
 
 ```{r point-gam}
+point_nb <- glm.nb(count ~ months, data = filter(gestures_tot, gesture == "point"))
+
 point_gam <- gam(
   count ~
     back_o +
@@ -121,7 +132,8 @@ point_gam <- gam(
     s(months, k = 3, by = back_o) +
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = filter(gestures_tot, gesture == "point"),
-  method = "ML"
+  method = "ML",
+  family = negbin(0.1946)
 )
 summary(point_gam)
 
@@ -132,7 +144,8 @@ point_gam_null <- gam(
     # s(months, k = 3, by = back_o) +
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = filter(gestures_tot, gesture == "point"),
-  method = "ML"
+  method = "ML",
+  family = negbin(0.1946)
 )
 
 compareML(point_gam_null, point_gam)
@@ -145,6 +158,8 @@ plot_smooths(point_gam, months, facet_terms = back_o, series_length = 25)
 ## All gestures
 
 ```{r all-gam}
+all_nb <- glm.nb(count ~ months, data = gestures_tot)
+
 all_gam <- gam(
   count ~
     back_o +
@@ -152,7 +167,8 @@ all_gam <- gam(
     s(months, k = 3, by = back_o) +
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = gestures_tot,
-  method = "ML"
+  method = "ML",
+  family = negbin(0.4469)
 )
 summary(all_gam)
 
@@ -163,7 +179,8 @@ all_gam_null <- gam(
     # s(months, k = 3, by = back_o) +
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = gestures_tot,
-  method = "ML"
+  method = "ML",
+  family = negbin(0.4469)
 )
 
 compareML(all_gam_null, all_gam)
