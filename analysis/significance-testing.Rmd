@@ -13,6 +13,8 @@ library(tidyverse)
 theme_set(theme_minimal())
 library(itsadug)
 library(tidymv)
+library(lmerTest)
+library(effects)
 ```
 
 ```{r read-data, message=FALSE}
@@ -49,12 +51,63 @@ utterances_tot <- utterances %>%
     back_o = ordered(background, levels = c("English", "Bangladeshi", "Chinese"))
   )
 
+contrasts(utterances_tot$back_o) <- "contr.treatment"
+
 hg_tot <- filter(gestures_tot, gesture == "ho_gv")
 reach_tot <- filter(gestures_tot, gesture == "reach")
 point_tot <- filter(gestures_tot, gesture == "point")
 all_tot <- gestures_tot %>%
   group_by(dyad, back_o, months) %>%
   summarise(count = sum(count), ct = sum(ct))
+
+hg_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-reach) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+reach_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-ho_gv) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+reach_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-ho_gv) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+ct_point_lead <- gestures_tot %>%
+  filter(gesture == "point") %>%
+  dplyr::select(-gesture) %>%
+  rename(point = count) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+utter_point_lead <- gestures_tot %>%
+  filter(gesture == "point") %>%
+  right_join(y = utterances_tot) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(count)
+  ) %>%
+  filter(months != 12)
 ```
 
 ## HGs development
@@ -86,6 +139,24 @@ hg_gam_null <- gam(
 )
 
 compareML(hg_gam_null, hg_gam)
+
+hg_gam_2 <- gam(
+  count ~
+    s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = hg_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+hg_gam_2_null <- gam(
+  count ~
+    # s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = hg_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+compareML(hg_gam_2_null, hg_gam_2)
 ```
 
 ```{r hg-gam-plot}
@@ -121,6 +192,24 @@ reach_gam_null <- gam(
 )
 
 compareML(reach_gam_null, reach_gam)
+
+reach_gam_2 <- gam(
+  count ~
+    s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = reach_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+reach_gam_2_null <- gam(
+  count ~
+    # s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = reach_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+compareML(reach_gam_2_null, reach_gam_2)
 ```
 
 ```{r reach-gam-plot}
@@ -156,13 +245,31 @@ point_gam_null <- gam(
 )
 
 compareML(point_gam_null, point_gam)
+
+point_gam_2 <- gam(
+  count ~
+    s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = point_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+point_gam_2_null <- gam(
+  count ~
+    # s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = point_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+compareML(point_gam_2_null, point_gam_2)
 ```
 
 ```{r point-gam-plot}
 plot_smooths(point_gam, months, facet_terms = back_o, series_length = 25)
 ```
 
-## All gestures
+## All gestures development
 
 ```{r all-gam}
 all_nb <- glm.nb(count ~ months, data = all_tot)
@@ -197,7 +304,7 @@ compareML(all_gam_null, all_gam)
 plot_smooths(all_gam, months, facet_terms = back_o, series_length = 25)
 ```
 
-## Maternal CT
+## Maternal CT development
 
 ```{r ct-gam}
 ct_gam <- gam(
@@ -222,13 +329,31 @@ ct_gam_null <- gam(
 )
 
 compareML(ct_gam_null, ct_gam)
+
+ct_gam_2 <- gam(
+  count ~
+    s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = all_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+ct_gam_2_null <- gam(
+  count ~
+    # s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = all_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+compareML(ct_gam_2_null, ct_gam_2)
 ```
 
 ```{r ct-gam-plot}
 plot_smooths(ct_gam, months, facet_terms = back_o, series_length = 10)
 ```
 
-## Mother utterances
+## Mother utterances development
 
 ```{r utter-gam}
 utter_gam <- gam(
@@ -253,8 +378,118 @@ utter_gam_null <- gam(
 )
 
 compareML(utter_gam_null, utter_gam)
+
+utter_gam_2 <- gam(
+  utterances ~
+    s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = utterances_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+utter_gam_2_null <- gam(
+  utterances ~
+    # s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = utterances_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+compareML(utter_gam_2_null, utter_gam_2)
 ```
 
 ```{r utter-gam-plot}
 plot_smooths(utter_gam, months, facet_terms = back_o, series_length = 10)
+```
+
+## Predict pointing gestures
+
+### Hold out and gives
+
+```{r hg-point-lm}
+hg_point_lead_nb <- glm.nb(lead_point ~ ho_gv, data = filter(hg_point_lead, ho_gv < 20))
+
+hg_point_lm <- glmer.nb(
+  lead_point ~
+    ho_gv *
+    background +
+    (1|dyad),
+  data = filter(hg_point_lead, ho_gv < 20)
+)
+summary(hg_point_lm)
+```
+
+```{r hg-point-check}
+plot(fitted(hg_point_lm), residuals(hg_point_lm))
+qqnorm(residuals(hg_point_lm))
+```
+
+```{r hg-point-plot}
+plot(allEffects(hg_point_lm))
+```
+
+### Reaches
+
+```{r reach-point-lm}
+reach_point_lm <- glmer.nb(
+  lead_point ~
+    reach *
+    background +
+    (1|dyad),
+  data = reach_point_lead
+)
+summary(reach_point_lm)
+```
+
+```{r reach-point-check}
+plot(fitted(reach_point_lm), residuals(reach_point_lm))
+qqnorm(residuals(reach_point_lm))
+```
+
+```{r reach-point-plot}
+plot(allEffects(reach_point_lm))
+```
+
+### Maternal CT
+
+```{r ct-point-lm}
+ct_point_lm <- glmer.nb(
+  lead_point ~
+    ct *
+    background +
+    (1|dyad),
+  data = ct_point_lead
+)
+summary(ct_point_lm)
+```
+
+```{r ct-point-check}
+plot(fitted(ct_point_lm), residuals(ct_point_lm))
+qqnorm(residuals(ct_point_lm))
+```
+
+```{r ct-point-plot}
+plot(allEffects(ct_point_lm))
+```
+
+### Maternal utterances
+
+```{r utter-point-lm}
+utter_point_lm <- glmer.nb(
+  lead_point ~
+    scale(utterances) *
+    background +
+    (1|dyad),
+  data = utter_point_lead
+)
+summary(utter_point_lm)
+```
+
+```{r ct-point-check}
+plot(fitted(utter_point_lm), residuals(utter_point_lm))
+qqnorm(residuals(utter_point_lm))
+```
+
+```{r ct-point-plot}
+plot(allEffects(utter_point_lm))
 ```
