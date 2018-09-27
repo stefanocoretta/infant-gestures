@@ -15,6 +15,7 @@ library(itsadug)
 library(tidymv)
 library(lmerTest)
 library(effects)
+library(simr)
 ```
 
 ```{r read-data, message=FALSE}
@@ -505,4 +506,20 @@ plot(allEffects(utter_point_lm))
 ```
 
 # Power analysis
+
+```{r hgpl-power}
+hgpl <- filter(hg_point_lead, ho_gv < 20) %>% na.omit()
+
+pow_lm <- glmer(
+  lead_point ~
+    ho_gv *
+    background +
+    (1|dyad),
+  data = hgpl,
+  family = negbin(0.2606)
+)
+fixef(pow_lm)["ho_gv:backgroundChinese"] <- 0.3
+
+powerSim(pow_lm, test = fixed("ho_gv:backgroundChinese", method = "z"), nsim = 1000)
+```
 
