@@ -409,12 +409,13 @@ plot_smooths(utter_gam, months, facet_terms = back_o, series_length = 10)
 ```{r hg-point-lm}
 hg_point_lead_nb <- glm.nb(lead_point ~ ho_gv, data = filter(hg_point_lead, ho_gv < 20))
 
-hg_point_lm <- glmer.nb(
+hg_point_lm <- glmer(
   lead_point ~
     ho_gv *
     background +
     (1|dyad),
-  data = filter(hg_point_lead, ho_gv < 20)
+  data = filter(hg_point_lead, ho_gv < 20),
+  family = negbin(0.2606)
 )
 summary(hg_point_lm)
 ```
@@ -431,12 +432,15 @@ plot(allEffects(hg_point_lm))
 ### Reaches
 
 ```{r reach-point-lm}
-reach_point_lm <- glmer.nb(
+reach_point_lead_nb <- glm.nb(lead_point ~ reach, data = reach_point_lead)
+
+reach_point_lm <- glmer(
   lead_point ~
     reach *
     background +
     (1|dyad),
-  data = reach_point_lead
+  data = reach_point_lead,
+  family = negbin(0.2681)
 )
 summary(reach_point_lm)
 ```
@@ -453,12 +457,15 @@ plot(allEffects(reach_point_lm))
 ### Maternal CT
 
 ```{r ct-point-lm}
-ct_point_lm <- glmer.nb(
+ct_point_lead_nb <- glm.nb(lead_point ~ ct, data = ct_point_lead)
+
+ct_point_lm <- glmer(
   lead_point ~
     ct *
     background +
     (1|dyad),
-  data = ct_point_lead
+  data = ct_point_lead,
+  family = negbin(0.3247)
 )
 summary(ct_point_lm)
 ```
@@ -475,12 +482,15 @@ plot(allEffects(ct_point_lm))
 ### Maternal utterances
 
 ```{r utter-point-lm}
-utter_point_lm <- glmer.nb(
+utter_point_lead_nb <- glm.nb(lead_point ~ utterances, data = utter_point_lead)
+
+utter_point_lm <- glmer(
   lead_point ~
     scale(utterances) *
     background +
     (1|dyad),
-  data = utter_point_lead
+  data = utter_point_lead,
+  family = negbin(0.2554)
 )
 summary(utter_point_lm)
 ```
