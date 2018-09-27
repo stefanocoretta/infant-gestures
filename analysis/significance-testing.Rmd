@@ -419,6 +419,16 @@ hg_point_lm <- glmer(
   family = negbin(0.2606)
 )
 summary(hg_point_lm)
+
+hg_point_lm_null <- glmer(
+  lead_point ~
+    ho_gv +
+    background +
+    (1|dyad),
+  data = filter(hg_point_lead, ho_gv < 20),
+  family = negbin(0.2606)
+)
+anova(hg_point_lm_null, hg_point_lm)
 ```
 
 ```{r hg-point-check}
@@ -426,9 +436,22 @@ plot(fitted(hg_point_lm), residuals(hg_point_lm))
 qqnorm(residuals(hg_point_lm))
 ```
 
-```{r hg-point-plot}
-plot(allEffects(hg_point_lm))
+```{r}
+hg_eff <- as_tibble(effect("ho_gv:background", hg_point_lm, xlevels = 100))
+
+ggplot(hg_eff, aes(ho_gv, fit)) +
+  geom_ribbon(aes(ymax = upper, ymin = lower), alpha = 0.2) +
+  geom_line() +
+  facet_grid(~ background) +
+  coord_cartesian(ylim = c(0, 100))
+
+ggplot(hg_eff, aes(ho_gv, fit)) +
+  geom_ribbon(aes(ymax = upper, ymin = lower), alpha = 0.2) +
+  geom_line() +
+  facet_grid(~ background) +
+  coord_cartesian(ylim = c(0, 20))
 ```
+
 
 ## Reaches
 
