@@ -110,7 +110,7 @@ utter_point_lead <- gestures_tot %>%
   filter(months != 12)
 ```
 
-## HGs development
+# HGs development
 
 ```{r hg-gam}
 hg_nb <- glm.nb(count ~ months, data = hg_tot)
@@ -163,7 +163,7 @@ compareML(hg_gam_2_null, hg_gam_2)
 plot_smooths(hg_gam, months, facet_terms = back_o, series_length = 25)
 ```
 
-## Reach development
+# Reach development
 
 ```{r reach-gam}
 reach_nb <- glm.nb(count ~ months, data = reach_tot)
@@ -269,7 +269,7 @@ compareML(point_gam_2_null, point_gam_2)
 plot_smooths(point_gam, months, facet_terms = back_o, series_length = 25)
 ```
 
-## All gestures development
+# All gestures development
 
 ```{r all-gam}
 all_nb <- glm.nb(count ~ months, data = all_tot)
@@ -304,7 +304,7 @@ compareML(all_gam_null, all_gam)
 plot_smooths(all_gam, months, facet_terms = back_o, series_length = 25)
 ```
 
-## Maternal CT development
+# Maternal CT development
 
 ```{r ct-gam}
 ct_gam <- gam(
@@ -353,7 +353,7 @@ compareML(ct_gam_2_null, ct_gam_2)
 plot_smooths(ct_gam, months, facet_terms = back_o, series_length = 10)
 ```
 
-## Mother utterances development
+# Mother utterances development
 
 ```{r utter-gam}
 utter_gam <- gam(
@@ -402,9 +402,9 @@ compareML(utter_gam_2_null, utter_gam_2)
 plot_smooths(utter_gam, months, facet_terms = back_o, series_length = 10)
 ```
 
-## Predict pointing gestures
+# Predict pointing gestures
 
-### Hold out and gives
+## Hold out and gives
 
 ```{r hg-point-lm}
 hg_point_lead_nb <- glm.nb(lead_point ~ ho_gv, data = filter(hg_point_lead, ho_gv < 20))
@@ -429,7 +429,7 @@ qqnorm(residuals(hg_point_lm))
 plot(allEffects(hg_point_lm))
 ```
 
-### Reaches
+## Reaches
 
 ```{r reach-point-lm}
 reach_point_lead_nb <- glm.nb(lead_point ~ reach, data = reach_point_lead)
@@ -454,7 +454,7 @@ qqnorm(residuals(reach_point_lm))
 plot(allEffects(reach_point_lm))
 ```
 
-### Maternal CT
+## Maternal CT
 
 ```{r ct-point-lm}
 ct_point_lead_nb <- glm.nb(lead_point ~ ct, data = ct_point_lead)
@@ -479,7 +479,7 @@ qqnorm(residuals(ct_point_lm))
 plot(allEffects(ct_point_lm))
 ```
 
-### Maternal utterances
+## Maternal utterances
 
 ```{r utter-point-lm}
 utter_point_lead_nb <- glm.nb(lead_point ~ utterances, data = utter_point_lead)
@@ -503,3 +503,6 @@ qqnorm(residuals(utter_point_lm))
 ```{r ct-point-plot}
 plot(allEffects(utter_point_lm))
 ```
+
+# Power analysis
+
