@@ -1,0 +1,203 @@
+---
+title: "Statistical testing I"
+date: "03/10/2018"
+output:
+  pdf_document:
+    fig_height: 3.5
+    fig_width: 5
+    number_sections: yes
+fontsize: 11pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath("../../"))
+library(MASS)
+library(tidyverse)
+theme_set(theme_minimal())
+library(itsadug)
+library(tidymv)
+library(lmerTest)
+library(effects)
+library(simr)
+```
+
+```{r read-data, message=FALSE, echo=FALSE}
+gestures <- read_csv("./data/gestures.csv")
+
+gestures_tot <- gestures %>%
+  group_by(dyad, background, months, gesture) %>%
+  summarise(
+    count = sum(count),
+    ct = sum(ct)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    gesture = factor(gesture, levels = c("reach", "point", "ho_gv"))
+  ) %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(
+    back_o = ordered(background, levels = c("English", "Bangladeshi", "Chinese"))
+  )
+
+contrasts(gestures_tot$back_o) <- "contr.treatment"
+
+utterances <- read_csv("./data/utterances.csv")
+
+# NAs not removed in sum()
+utterances_tot <- utterances %>%
+  group_by(dyad, background, months) %>%
+  summarise(
+    utterances = sum(utterances)
+  ) %>%
+  ungroup() %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(
+    back_o = ordered(background, levels = c("English", "Bangladeshi", "Chinese"))
+  )
+
+contrasts(utterances_tot$back_o) <- "contr.treatment"
+
+hg_tot <- filter(gestures_tot, gesture == "ho_gv")
+reach_tot <- filter(gestures_tot, gesture == "reach")
+point_tot <- filter(gestures_tot, gesture == "point")
+all_tot <- gestures_tot %>%
+  group_by(dyad, back_o, months) %>%
+  summarise(count = sum(count), ct = sum(ct))
+
+hg_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-reach) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+reach_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-ho_gv) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+reach_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-ho_gv) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+ct_point_lead <- gestures_tot %>%
+  filter(gesture == "point") %>%
+  dplyr::select(-gesture) %>%
+  rename(point = count) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+utter_point_lead <- gestures_tot %>%
+  filter(gesture == "point") %>%
+  right_join(y = utterances_tot) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(count)
+  ) %>%
+  filter(months != 12)
+```
+
+This report presents the results from linear models which test the relationship between gestures/utterances and infant pointing.
+
+# Hold out and gives
+
+```{r hg-lm}
+hg_point_lm <- glmer(
+  lead_point ~
+    ho_gv *
+    background +
+    (1|dyad),
+  data = filter(hg_point_lead, ho_gv < 20),
+  family = negbin(0.2606)
+)
+summary(hg_point_lm)
+```
+
+```{r, echo=FALSE}
+hg_eff <- as_tibble(effect("ho_gv:background", hg_point_lm, xlevels = 100))
+
+ggplot(hg_eff, aes(ho_gv, fit)) +
+  geom_ribbon(aes(ymax = upper, ymin = lower), alpha = 0.2) +
+  geom_line() +
+  facet_grid(~ background) +
+  coord_cartesian(ylim = c(0, 100))
+```
+
+The count of HoGs has a slightly negative (but not significant) effect on number of pointing gestures in Bangladeshi infants.
+The count of HoGs has more or less no effect in Chinese infants and a slightly positive (significant) effect in English children.
+In English children, for every unit increase of HoG gestures, pointing in the next visit is 1.25 times higher.
+
+According to model comparison though, including an interaction between HoG counts and background does not significantly improve the model fit.
+
+# Reaches
+
+```{r reach-point-lm}
+reach_point_lm <- glmer(
+  lead_point ~
+    reach *
+    background +
+    (1|dyad),
+  data = reach_point_lead,
+  family = negbin(0.2681)
+)
+summary(reach_point_lm)
+```
+
+The effect of count of reaches as a predictor of pointing is approximately null and not significant.
+
+# Maternal contingent talks
+
+```{r ct-point-lm}
+ct_point_lm <- glmer(
+  lead_point ~
+    ct *
+    background +
+    (1|dyad),
+  data = ct_point_lead,
+  family = negbin(0.3247)
+)
+summary(ct_point_lm)
+```
+
+Pointing is 1.25 times higher for every unit increase of maternal CTs but this effect is not significant either.
+
+# Maternal utterances
+
+```{r utter-point-lm}
+utter_point_lm <- glmer(
+  lead_point ~
+    scale(utterances) *
+    background +
+    (1|dyad),
+  data = utter_point_lead,
+  family = negbin(0.2554)
+)
+summary(utter_point_lm)
+```
+
+Pointing is about 1.4 times higher for every unit increase of normalised maternal utterances count in Bangladeshi and English infants, but this effect is not significant.
+The effect of maternal utterances is null in Chinese infants.
+
+# Power analysis
+
+According to a power analysis, we have a power of around 65% for detecting an interaction between HoGs and background.
+We have a power of about 20% for detecting an effect of HoGs on pointing of a magnitude similar to what we see in the model.
+This means that respectively we have respectively a 35% and 80% chance of obtaining a false null result.
