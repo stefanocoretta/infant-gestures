@@ -1,0 +1,302 @@
+---
+title: "Statistical testing II"
+date: "08/10/2018"
+output:
+  pdf_document:
+    fig_height: 3.5
+    fig_width: 5
+    number_sections: yes
+fontsize: 11pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath("../../"))
+library(MASS)
+library(tidyverse)
+theme_set(theme_minimal())
+library(itsadug)
+library(tidymv)
+library(lmerTest)
+library(effects)
+library(simr)
+```
+
+```{r read-data, message=FALSE, echo=FALSE}
+gestures <- read_csv("./data/gestures.csv")
+
+gestures_tot <- gestures %>%
+  group_by(dyad, background, months, gesture) %>%
+  summarise(
+    count = sum(count),
+    ct = sum(ct)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    gesture = factor(gesture, levels = c("reach", "point", "ho_gv"))
+  ) %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(
+    back_o = ordered(background, levels = c("English", "Bangladeshi", "Chinese"))
+  )
+
+contrasts(gestures_tot$back_o) <- "contr.treatment"
+
+utterances <- read_csv("./data/utterances.csv")
+
+# NAs not removed in sum()
+utterances_tot <- utterances %>%
+  group_by(dyad, background, months) %>%
+  summarise(
+    utterances = sum(utterances)
+  ) %>%
+  ungroup() %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(
+    back_o = ordered(background, levels = c("English", "Bangladeshi", "Chinese"))
+  )
+
+contrasts(utterances_tot$back_o) <- "contr.treatment"
+
+hg_tot <- filter(gestures_tot, gesture == "ho_gv")
+reach_tot <- filter(gestures_tot, gesture == "reach")
+point_tot <- filter(gestures_tot, gesture == "point")
+all_tot <- gestures_tot %>%
+  group_by(dyad, back_o, months) %>%
+  summarise(count = sum(count), ct = sum(ct))
+
+hg_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-reach) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+reach_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-ho_gv) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+reach_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-ho_gv) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+ct_point_lead <- gestures_tot %>%
+  filter(gesture == "point") %>%
+  dplyr::select(-gesture) %>%
+  rename(point = count) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+utter_point_lead <- gestures_tot %>%
+  filter(gesture == "point") %>%
+  right_join(y = utterances_tot) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(count)
+  ) %>%
+  filter(months != 12)
+```
+
+This report presents the results from generalised additive models which test the development and background differences of infant gestures and maternal sentence counts.
+
+# Hold out and gives
+
+```{r hg-gam, echo=FALSE, message=FALSE, include=FALSE}
+hg_gam <- gam(
+  count ~
+    back_o +
+    s(months, k = 3) +
+    s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = hg_tot,
+  method = "ML",
+  family = negbin(0.6434)
+)
+
+hg_gam_null <- gam(
+  count ~
+    # back_o +
+    s(months, k = 3) +
+    # s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = hg_tot,
+  method = "ML",
+  family = negbin(0.6434)
+)
+
+hg_gam_2 <- gam(
+  count ~
+    s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = hg_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+hg_gam_2_null <- gam(
+  count ~
+    # s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = hg_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+compareML(hg_gam_2_null, hg_gam_2)
+```
+
+According to a GAM model, background is not a significant predictor of HoGs counts over time. This means that according to the model there are no differences in HoGs development between backgrounds (p = 0.179).
+
+```{r hg-compare-1, echo=FALSE}
+compareML(hg_gam_null, hg_gam)
+```
+
+On the other hand, the time of visit is a significant predictor. HoG counts increase over time by an estimate of 1 HoGs every 2 months (so that at visit time 3 on average infants produce 1 more gesture than visit time 1, p = 0.015).
+
+```{r hg-compare-2, echo=FALSE}
+compareML(hg_gam_2_null, hg_gam_2)
+```
+
+```{r hg-gam-plot, echo=FALSE}
+plot_smooths(hg_gam_2, months, series_length = 25) +
+  labs(title = "Estimated development of HoG counts over visit time\n(months 10, 11, 12)")
+```
+
+# Reaches
+
+```{r reach-gam, echo=FALSE, message=FALSE, include=FALSE}
+reach_gam <- gam(
+  count ~
+    back_o +
+    s(months, k = 3) +
+    s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = reach_tot,
+  method = "ML",
+  family = negbin(0.986)
+)
+
+reach_gam_null <- gam(
+  count ~
+    # back_o +
+    s(months, k = 3) +
+    # s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = reach_tot,
+  method = "ML",
+  family = negbin(0.986)
+)
+
+reach_gam_2 <- gam(
+  count ~
+    s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = reach_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+reach_gam_2_null <- gam(
+  count ~
+    # s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = reach_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+```
+
+According to GAMs, neither visit time nor background are significant predictors of reach counts (p = 0.466, p = 0.842 respectively).
+
+```{r reach-compare-1}
+compareML(reach_gam_null, reach_gam)
+```
+
+```{r reach-compare-2}
+compareML(reach_gam_2_null, reach_gam_2)
+```
+
+# Points
+
+```{r point-gam, echo=FALSE, message=FALSE, include=FALSE}
+point_nb <- glm.nb(count ~ months, data = point_tot)
+
+point_gam <- gam(
+  count ~
+    back_o +
+    s(months, k = 3) +
+    s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = point_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+
+point_gam_null <- gam(
+  count ~
+    # back_o +
+    s(months, k = 3) +
+    # s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = point_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+
+point_gam_2 <- gam(
+  count ~
+    s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = point_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+point_gam_2_null <- gam(
+  count ~
+    # s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = point_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+```
+
+Background is not a significant predictor of reach gestures development (p = 0.715).
+
+```{r point-compare-1}
+compareML(point_gam_null, point_gam)
+```
+
+Visit time is a significant predictor of reaches development (p = 0.011), and reaches counts increase over time by an estimate of 1 reach every 2 months (so that at visit time 3 on average infants produce 1 more gesture than visit time 1).
+
+```{r point-compare-2}
+compareML(point_gam_2_null, point_gam_2)
+```
+
+```{r point-gam-plot, echo=FALSE}
+plot_smooths(point_gam_2, months, series_length = 25) +
+  labs(title = "Estimated development of point counts over visit time\n(months 10, 11, 12)")
+```
+
+# Maternal utterances and contingent talks
+
+Background nor visit time are significant predictors of the development of counts over time of maternal utterances and contingent talks.
+
+# Summary
+
+Background is not a significant predictor in any of the models. Visit time is a significant predictor for hold out and gives, and pointing gestures, but not for reach gestures, nor maternal counts. In general, there is an increase of 1 HoG/pointing between visit time 1 and 3.
