@@ -164,6 +164,10 @@ compareML(hg_gam_2_null, hg_gam_2)
 plot_smooths(hg_gam, months, facet_terms = back_o, series_length = 25)
 ```
 
+```{r hg-gam-plot-2}
+plot_smooths(hg_gam_2, months, series_length = 25)
+```
+
 # Reach development
 
 ```{r reach-gam}
@@ -217,7 +221,7 @@ compareML(reach_gam_2_null, reach_gam_2)
 plot_smooths(reach_gam, months, facet_terms = back_o, series_length = 25)
 ```
 
-## Point development
+# Point development
 
 ```{r point-gam}
 point_nb <- glm.nb(count ~ months, data = point_tot)
@@ -268,6 +272,10 @@ compareML(point_gam_2_null, point_gam_2)
 
 ```{r point-gam-plot}
 plot_smooths(point_gam, months, facet_terms = back_o, series_length = 25)
+```
+
+```{r point-gam-plot-2}
+plot_smooths(point_gam_2, months, series_length = 25)
 ```
 
 # All gestures development
@@ -352,6 +360,10 @@ compareML(ct_gam_2_null, ct_gam_2)
 
 ```{r ct-gam-plot}
 plot_smooths(ct_gam, months, facet_terms = back_o, series_length = 10)
+```
+
+```{r ct-gam-plot-2}
+plot_smooths(ct_gam_2, months, series_length = 10)
 ```
 
 # Mother utterances development
