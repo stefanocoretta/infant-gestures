@@ -276,13 +276,13 @@ point_gam_2_null <- gam(
 )
 ```
 
-Background is not a significant predictor of reach gestures development (p = 0.715).
+Background is not a significant predictor of pointing gestures development (p = 0.715).
 
 ```{r point-compare-1}
 compareML(point_gam_null, point_gam)
 ```
 
-Visit time is a significant predictor of reaches development (p = 0.011), and reaches counts increase over time by an estimate of 1 reach every 2 months (so that at visit time 3 on average infants produce 1 more gesture than visit time 1).
+Visit time is a significant predictor of pointing development (p = 0.011), and pointing counts increase over time by an estimate of 1 pointing gesture every 2 months (so that at visit time 3 on average infants produce 1 more gesture than visit time 1).
 
 ```{r point-compare-2}
 compareML(point_gam_2_null, point_gam_2)
