@@ -109,6 +109,10 @@ utter_point_lead <- gestures_tot %>%
     lead_point = lead(count)
   ) %>%
   filter(months != 12)
+
+pointing <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count)
 ```
 
 # HGs development
@@ -558,3 +562,36 @@ fixef(pow_lm)["ho_gv:backgroundChinese"] <- 0.3
 powerSim(pow_lm, test = fixed("ho_gv:backgroundChinese", method = "z"), nsim = 1000)
 ```
 
+```{r hgpl-power-curve}
+pow_lm_2 <- extend(pow_lm, along = "dyad", n = 100)
+
+ph_pc <- powerCurve(pow_lm_2, fixed("ho_gv:backgroundChinese", "z"), along = "dyad", nsim = 1000)
+
+plot(ph_pc)
+```
+
+# Exploratory
+
+```{r hg-point-lm}
+hg_point_nb <- glm.nb(point ~ ho_gv, data = filter(pointing, ho_gv < 20))
+
+hg_p_lm <- glmer(
+  point ~
+    ho_gv *
+    background +
+    (1|dyad),
+  data = filter(pointing, ho_gv < 20),
+  family = negbin(0.1904)
+)
+summary(hg_p_lm)
+
+hg_p_lm_null <- glmer(
+  point ~
+    ho_gv +
+    background +
+    (1|dyad),
+  data = filter(pointing, ho_gv < 20),
+  family = negbin(0.1904)
+)
+anova(hg_p_lm_null, hg_p_lm)
+```
