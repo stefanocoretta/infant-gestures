@@ -57,6 +57,15 @@ utter_point <- left_join(utterances_tot, point) %>%
 
 utterances_compl <- utterances %>% na.omit()
 utterances_tcompl <- utterances_tot %>% na.omit()
+
+vocab <- read_csv("./data/vocab.csv") %>%
+  mutate_if(is.character, as.factor)
+
+vocab_gest <- gestures_tot %>%
+  group_by(dyad, background) %>%
+  summarise(count_tot = sum(count), ct_tot = sum(ct)) %>%
+  full_join(y = vocab) %>%
+  arrange(months, dyad)
 ```
 
 # Summaries
@@ -555,4 +564,43 @@ ct_point_lead %>%
   ggplot(aes(ct, lead_point, colour = background)) +
   geom_point() +
   geom_smooth(method = "lm")
+```
+
+# Vocab scores
+
+```{r}
+vocab %>%
+  ggplot(aes(understand, fill = background)) +
+  geom_density(alpha = 0.5)
+```
+
+```{r}
+vocab %>%
+  ggplot(aes(background, understand)) +
+  geom_boxplot()
+```
+
+```{r}
+vocab_gest %>%
+  ggplot(aes(count_tot, understand, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months)
+```
+
+```{r}
+vocab_gest %>%
+  ggplot(aes(count_tot, understand)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months) +
+  xlim(0, 150)
+```
+
+```{r}
+vocab_gest %>%
+  ggplot(aes(count_tot, und_say, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months)
 ```
