@@ -58,14 +58,25 @@ utter_point <- left_join(utterances_tot, point) %>%
 utterances_compl <- utterances %>% na.omit()
 utterances_tcompl <- utterances_tot %>% na.omit()
 
-vocab <- read_csv("./data/vocab.csv") %>%
-  mutate_if(is.character, as.factor)
+hgp_tot <- gestures_tot %>%
+  filter(gesture != "reach") %>%
+  group_by(dyad, background) %>%
+  summarise(hgp_tot = sum(count))
 
 vocab_gest <- gestures_tot %>%
   group_by(dyad, background) %>%
   summarise(count_tot = sum(count), ct_tot = sum(ct)) %>%
-  full_join(y = vocab) %>%
-  arrange(months, dyad)
+  full_join(y = hgp_tot)
+
+vocab_utt <- utterances_tot %>%
+  group_by(dyad, background) %>%
+  summarise(utt_tot = sum(utterances))
+
+vocab <- read_csv("./data/vocab.csv") %>%
+  full_join(y = vocab_gest) %>%
+  full_join(y = vocab_utt) %>%
+  arrange(dyad, months) %>%
+  mutate_if(is.character, as.factor)
 ```
 
 # Summaries
@@ -580,8 +591,10 @@ vocab %>%
   geom_boxplot()
 ```
 
+## Gesture count total
+
 ```{r}
-vocab_gest %>%
+vocab %>%
   ggplot(aes(count_tot, understand, colour = background)) +
   geom_point() +
   geom_smooth(method = "lm") +
@@ -589,7 +602,7 @@ vocab_gest %>%
 ```
 
 ```{r}
-vocab_gest %>%
+vocab %>%
   ggplot(aes(count_tot, understand)) +
   geom_point() +
   geom_smooth(method = "lm") +
@@ -598,8 +611,132 @@ vocab_gest %>%
 ```
 
 ```{r}
-vocab_gest %>%
+vocab %>%
   ggplot(aes(count_tot, und_say, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months)
+```
+
+## Hold out and gives and points
+
+```{r}
+vocab %>%
+  ggplot(aes(hgp_tot, understand, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months)
+```
+
+```{r}
+vocab %>%
+  ggplot(aes(hgp_tot, understand)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months)
+```
+
+```{r}
+vocab %>%
+  filter(hgp_tot < 120) %>%
+  ggplot(aes(hgp_tot, understand, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months)
+```
+
+```{r}
+vocab %>%
+  ggplot(aes(hgp_tot, und_say, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months)
+```
+
+## Contingent talks
+
+```{r}
+vocab %>%
+  ggplot(aes(ct_tot, understand)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months)
+```
+
+```{r}
+vocab %>%
+  filter(ct_tot < 75) %>%
+  ggplot(aes(ct_tot, understand)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months)
+```
+
+```{r}
+vocab %>%
+  filter(ct_tot < 75) %>%
+  ggplot(aes(ct_tot, understand, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months)
+```
+
+```{r}
+vocab %>%
+  # filter(ct_tot < 75) %>%
+  ggplot(aes(ct_tot, und_say)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months)
+```
+
+```{r}
+vocab %>%
+  filter(ct_tot < 25) %>%
+  ggplot(aes(ct_tot, und_say)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months)
+```
+
+```{r}
+vocab %>%
+  filter(ct_tot < 25) %>%
+  ggplot(aes(ct_tot, und_say, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months)
+```
+
+## Mother utterances
+
+```{r}
+vocab %>%
+  ggplot(aes(utt_tot, understand)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months)
+```
+
+```{r}
+vocab %>%
+  ggplot(aes(utt_tot, understand, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months)
+```
+
+```{r}
+vocab %>%
+  ggplot(aes(utt_tot, und_say)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months)
+```
+
+```{r}
+vocab %>%
+  ggplot(aes(utt_tot, und_say, colour = background)) +
   geom_point() +
   geom_smooth(method = "lm") +
   facet_grid(~ months)
