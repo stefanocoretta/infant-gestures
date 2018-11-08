@@ -1,0 +1,219 @@
+---
+title: "Report 7: Vocab scores"
+date: "21/08/2018"
+output:
+  pdf_document:
+    fig_height: 4
+    fig_width: 5
+    number_sections: yes
+fontsize: 11pt
+params:
+  version: "v1.0"
+  version-date: "08/11/2018"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = normalizePath("../../"))
+library(fitdistrplus)
+library(tidyverse)
+theme_set(theme_minimal())
+```
+
+```{r read, message=FALSE, warning=FALSE}
+gestures <- read_csv("./data/gestures.csv")
+
+gestures_tot <- gestures %>%
+  group_by(dyad, background, months, gesture) %>%
+  summarise(
+    count = sum(count),
+    ct = sum(ct)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    gesture = factor(gesture, levels = c("reach", "point", "ho_gv"))
+  ) %>%
+  mutate_if(is.character, as.factor)
+
+utterances <- read_csv("./data/utterances.csv")
+
+# NAs not removed in sum()
+utterances_tot <- utterances %>%
+  group_by(dyad, background, months) %>%
+  summarise(
+    utterances = sum(utterances)
+  ) %>%
+  ungroup() %>%
+  mutate_if(is.character, as.factor)
+
+point <- gestures %>%
+  filter(gesture == "point") %>%
+  group_by(dyad, background, months) %>%
+  summarise(
+    count = sum(count)
+  ) %>%
+  ungroup() %>%
+  mutate_if(is.character, as.factor)
+
+utter_point <- left_join(utterances_tot, point) %>%
+  rename(point = count)
+
+utterances_compl <- utterances %>% na.omit()
+utterances_tcompl <- utterances_tot %>% na.omit()
+
+hgp_tot <- gestures_tot %>%
+  filter(gesture != "reach") %>%
+  group_by(dyad, background) %>%
+  summarise(hgp_tot = sum(count))
+
+vocab_gest <- gestures_tot %>%
+  group_by(dyad, background) %>%
+  summarise(count_tot = sum(count), ct_tot = sum(ct)) %>%
+  full_join(y = hgp_tot)
+
+vocab_utt <- utterances_tot %>%
+  group_by(dyad, background) %>%
+  summarise(utt_tot = sum(utterances))
+
+vocab <- read_csv("./data/vocab.csv") %>%
+  full_join(y = vocab_gest) %>%
+  full_join(y = vocab_utt) %>%
+  arrange(dyad, months) %>%
+  mutate_if(is.character, as.factor)
+```
+
+The following sections show scatter plots of infant/maternal scores and vocab scores.
+Regression lines are overlayed on the points.
+Each plot has two panels: one for vocab scores at 12 months and one for vocab scores at 18 months.
+
+# All infant gestures
+
+```{r warning=FALSE}
+vocab %>%
+  ggplot(aes(count_tot, understand, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months) +
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+  labs(
+    title = "All gestures counts and number of understood words",
+    x = "Number of gestures (all)",
+    y = "Number of understood words"
+  ) +
+  theme(legend.position = "top")
+```
+
+```{r warning=FALSE}
+vocab %>%
+  ggplot(aes(count_tot, und_say, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months) +
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+  labs(
+    title = "All gestures counts and number of understood/said\nwords",
+    x = "Number of gestures (all)",
+    y = "Number of understood/said words"
+  ) +
+  theme(legend.position = "top")
+```
+
+# HoGs and points
+
+```{r warning=FALSE}
+vocab %>%
+  filter(hgp_tot < 120) %>%
+  ggplot(aes(hgp_tot, understand, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months) +
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+  labs(
+    title = "HoG and points counts and number of understood\nwords",
+    x = "Number of HoG and points",
+    y = "Number of understood words"
+  ) +
+  theme(legend.position = "top")
+```
+
+```{r warning=FALSE}
+vocab %>%
+  filter(hgp_tot < 120) %>%
+  ggplot(aes(hgp_tot, und_say, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months) +
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+  labs(
+    title = "HoG and points counts and number of understood/said\nwords",
+    x = "Number of HoG and points",
+    y = "Number of understood/said words"
+  ) +
+  theme(legend.position = "top")
+```
+
+# Contigent talks
+
+```{r warning=FALSE}
+vocab %>%
+  filter(ct_tot < 75) %>%
+  ggplot(aes(ct_tot, understand, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months) +
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+  labs(
+    title = "Contingent talks and number of understood words",
+    x = "Number of CTs",
+    y = "Number of understood words"
+  ) +
+  theme(legend.position = "top")
+```
+
+```{r warning=FALSE}
+vocab %>%
+  filter(ct_tot < 75) %>%
+  ggplot(aes(ct_tot, und_say, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months) +
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+  labs(
+    title = "Contingent talks and number of understood/said\nwords",
+    x = "Number of CTs",
+    y = "Number of understood/said words"
+  ) +
+  theme(legend.position = "top")
+```
+
+# Maternal utterances
+
+```{r warning=FALSE}
+vocab %>%
+  ggplot(aes(utt_tot, understand, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+  facet_grid(~ months) +
+  labs(
+    title = "Maternal utterances and number of understood words",
+    x = "Maternal utterances",
+    y = "Number of understood words"
+  ) +
+  theme(legend.position = "top")
+```
+
+```{r warning=FALSE}
+vocab %>%
+  ggplot(aes(utt_tot, understand, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+  facet_grid(~ months) +
+  labs(
+    title = "Maternal utterances and number of understood/said\nwords",
+    x = "Maternal utterances",
+    y = "Number of understood/said words"
+  ) +
+  theme(legend.position = "top")
+```
