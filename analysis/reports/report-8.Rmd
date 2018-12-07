@@ -1,0 +1,288 @@
+---
+title: "Report 8"
+date: "07/12/2018"
+output:
+  pdf_document:
+    fig_height: 4
+    fig_width: 5
+    highlight: tango
+    number_sections: yes
+fontsize: 11pt
+params:
+  version: "v1.0"
+  version-date: "07/12/2018"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = normalizePath("../../"))
+library(fitdistrplus)
+library(tidyverse)
+theme_set(theme_minimal())
+library(lmerTest)
+library(sjPlot)
+```
+
+```{r read, message=FALSE, warning=FALSE}
+gestures <- read_csv("./data/gestures.csv")
+
+gestures_tot <- gestures %>%
+  group_by(dyad, background, months, gesture) %>%
+  summarise(
+    count = sum(count),
+    ct = sum(ct)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    gesture = factor(gesture, levels = c("reach", "point", "ho_gv"))
+  ) %>%
+  mutate_if(is.character, as.factor)
+
+utterances <- read_csv("./data/utterances.csv")
+
+# NAs not removed in sum()
+utterances_tot <- utterances %>%
+  group_by(dyad, background, months) %>%
+  summarise(
+    utterances = sum(utterances)
+  ) %>%
+  ungroup() %>%
+  mutate_if(is.character, as.factor)
+
+point <- gestures %>%
+  filter(gesture == "point") %>%
+  group_by(dyad, background, months) %>%
+  summarise(
+    count = sum(count)
+  ) %>%
+  ungroup() %>%
+  mutate_if(is.character, as.factor)
+
+utter_point <- left_join(utterances_tot, point) %>%
+  rename(point = count)
+
+utterances_compl <- utterances %>% na.omit()
+utterances_tcompl <- utterances_tot %>% na.omit()
+
+hgp_tot <- gestures_tot %>%
+  filter(gesture != "reach") %>%
+  group_by(dyad, background) %>%
+  summarise(hgp_tot = sum(count))
+
+vocab_gest <- gestures_tot %>%
+  group_by(dyad, background) %>%
+  summarise(count_tot = sum(count), ct_tot = sum(ct)) %>%
+  full_join(y = hgp_tot)
+
+vocab_utt <- utterances_tot %>%
+  group_by(dyad, background) %>%
+  summarise(utt_tot = sum(utterances))
+
+vocab <- read_csv("./data/vocab.csv") %>%
+  full_join(y = vocab_gest) %>%
+  full_join(y = vocab_utt) %>%
+  arrange(dyad, months) %>%
+  mutate_if(is.character, as.factor)
+```
+
+# Summary
+
+Including background and interactions in the model leads to non-significant estimates. This summary is based on models with just the relevant count predictor (all gestures, holdout and gives, utterances, etc) and months, with an interaction between count and months. A by-dyad random intercept has been included in all models.
+
+The estimate of understood and understood/said words is higher at 18 months than at 12 months.
+
+The count of all infant gestures is in a significant interaction with months when the outcome variable is understood/said words: the count of infant gestures is positively correlated with understood/said words at 18 months, but not really at 12 months.
+A similar pattern can be seen with the H&G and points count, adn the contingent talks count.
+The effect of count of maternal utterances on understood and understood/said word count is not significant.
+
+# All infant gestures
+
+A model with number of understood words as outcome; as predictors: infant gestures count, months, background, all interactions; by-dyad random intercepts.
+
+```{r}
+all_gest_lm <- lmer(
+  understand ~
+    count_tot *
+    months *
+    background +
+    (1|dyad),
+  data = vocab
+)
+summary(all_gest_lm)
+```
+
+A model with number of understood words as outcome; as predictors: infant gestures count, months, and interaction between the two; by-dyad random intercepts.
+
+```{r}
+all_gest_lm_2 <- lmer(
+  understand ~
+    count_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(all_gest_lm_2)
+```
+
+```{r}
+plot_model(all_gest_lm_2, type = "pred", terms = c("count_tot", "months"))
+```
+
+A model with number of understood/said words as outcome; as predictors: infant gestures count, months, and interaction between the two; by-dyad random intercepts.
+
+```{r}
+all_gest_lm_2_undsay <- lmer(
+  und_say ~
+    count_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(all_gest_lm_2_undsay)
+```
+
+```{r}
+plot_model(all_gest_lm_2_undsay, type = "pred", terms = c("count_tot", "months"))
+```
+
+# HoGs and points
+
+A model with number of understood words as outcome; as predictors: H&G and points count, months, background and all interaction; by-dyad random intercepts.
+
+```{r}
+hgp_lm <- lmer(
+  understand ~
+    hgp_tot *
+    months *
+    background +
+    (1|dyad),
+  data = vocab
+)
+summary(hgp_lm)
+```
+
+A model with number of understood words as outcome; as predictors: H&G and points count, months, and interaction between the two; by-dyad random intercepts.
+
+```{r}
+hgp_lm_2 <- lmer(
+  understand ~
+    hgp_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(hgp_lm_2)
+```
+
+```{r}
+plot_model(hgp_lm_2, type = "pred", terms = c("hgp_tot", "months"))
+```
+
+A model with number of understood/said words as outcome; as predictors: H&G and points count, months, and interaction between the two; by-dyad random intercepts.
+
+```{r}
+hgp_lm_2_undsay <- lmer(
+  und_say ~
+    hgp_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(hgp_lm_2_undsay)
+```
+
+```{r}
+plot_model(hgp_lm_2_undsay, type = "pred", terms = c("hgp_tot", "months"))
+```
+
+# Contigent talks
+
+A model with number of understood words as outcome; as predictors: contingent talks count, months, background, and all interactions; by-dyad random intercepts.
+
+```{r}
+ct_lm <- lmer(
+  understand ~
+    ct_tot *
+    months *
+    background +
+    (1|dyad),
+  data = vocab
+)
+summary(ct_lm)
+```
+
+A model with number of understood words as outcome; as predictors: contingent talks count, months, and interaction between the two; by-dyad random intercepts.
+
+```{r}
+ct_lm_2 <- lmer(
+  understand ~
+    ct_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(ct_lm_2)
+```
+
+```{r}
+plot_model(ct_lm_2, type = "pred", terms = c("ct_tot", "months"))
+```
+
+A model with number of understood/said words as outcome; as predictors: contingent talks count, months, and interaction between the two; by-dyad random intercepts.
+
+```{r}
+ct_lm_2_undsay <- lmer(
+  und_say ~
+    ct_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(ct_lm_2_undsay)
+```
+
+```{r}
+plot_model(ct_lm_2_undsay, type = "pred", terms = c("ct_tot", "months"))
+```
+
+# Maternal utterances
+
+A model with number of understood words as outcome; as predictors: maternal utterances count, months, background, and all interactions; by-dyad random intercepts.
+
+```{r}
+utt_lm <- lmer(
+  understand ~
+    utt_tot *
+    months *
+    background +
+    (1|dyad),
+  data = vocab
+)
+summary(utt_lm)
+```
+
+A model with number of understood words as outcome; as predictors: maternal utterances count, months, and interaction between the two; by-dyad random intercepts.
+
+```{r}
+utt_lm_2 <- lmer(
+  understand ~
+    utt_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(utt_lm_2)
+```
+
+A model with number of understood/said words as outcome; as predictors: maternal utterances count, months, and interaction between the two; by-dyad random intercepts.
+
+```{r}
+utt_lm_2_undsay <- lmer(
+  und_say ~
+    utt_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(utt_lm_2_undsay)
+```
