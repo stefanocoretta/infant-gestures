@@ -1,6 +1,6 @@
 ---
 title: "Report 8"
-date: "07/12/2018"
+date: "07/01/2019"
 output:
   pdf_document:
     fig_height: 4
@@ -9,8 +9,8 @@ output:
     number_sections: yes
 fontsize: 11pt
 params:
-  version: "v1.0"
-  version-date: "07/12/2018"
+  version: "v2.0"
+  version-date: "07/01/2019"
 ---
 
 ```{r setup, include=FALSE}
@@ -69,10 +69,16 @@ hgp_tot <- gestures_tot %>%
   group_by(dyad, background) %>%
   summarise(hgp_tot = sum(count))
 
+reach_tot <- gestures_tot %>%
+  filter(gesture == "reach") %>%
+  group_by(dyad, background) %>%
+  summarise(reach_tot = sum(count))
+
 vocab_gest <- gestures_tot %>%
   group_by(dyad, background) %>%
   summarise(count_tot = sum(count), ct_tot = sum(ct)) %>%
-  full_join(y = hgp_tot)
+  full_join(y = hgp_tot) %>%
+  full_join(y = reach_tot)
 
 vocab_utt <- utterances_tot %>%
   group_by(dyad, background) %>%
@@ -91,9 +97,9 @@ Including background and interactions in the model leads to non-significant esti
 
 The estimate of understood and understood/said words is higher at 18 months than at 12 months.
 
-The count of all infant gestures is in a significant interaction with months when the outcome variable is understood/said words: the count of infant gestures is positively correlated with understood/said words at 18 months, but not really at 12 months.
-A similar pattern can be seen with the H&G and points count, adn the contingent talks count.
-The effect of count of maternal utterances on understood and understood/said word count is not significant.
+The count of all infant gestures together (HoG, points, reaches) is in a significant interaction with months when the outcome variable is understood/said words: the count of infant gestures is positively correlated with understood/said words at 18 months, but not really at 12 months.
+A similar pattern can be seen with the H&G and points count, and the contingent talks count.
+The effect of count of maternal utterances and reaches on understood and understood/said word count is not significant.
 
 # All infant gestures
 
@@ -193,6 +199,56 @@ summary(hgp_lm_2_undsay)
 
 ```{r}
 plot_model(hgp_lm_2_undsay, type = "pred", terms = c("hgp_tot", "months"))
+```
+
+# Reaches
+
+A model with number of understood words as outcome; as predictors: reaches count, months, background and all interaction; by-dyad random intercepts.
+
+```{r}
+reach_lm <- lmer(
+  understand ~
+    reach_tot *
+    months *
+    background +
+    (1|dyad),
+  data = vocab
+)
+summary(reach_lm)
+```
+
+A model with number of understood words as outcome; as predictors: reaches count, months, and interaction between the two; by-dyad random intercepts.
+
+```{r}
+reach_lm_2 <- lmer(
+  understand ~
+    reach_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(reach_lm_2)
+```
+
+```{r}
+plot_model(reach_lm_2, type = "pred", terms = c("reach_tot", "months"))
+```
+
+A model with number of understood/said words as outcome; as predictors: reach count, months, and interaction between the two; by-dyad random intercepts.
+
+```{r}
+reach_lm_2_undsay <- lmer(
+  und_say ~
+    reach_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(reach_lm_2_undsay)
+```
+
+```{r}
+plot_model(reach_lm_2_undsay, type = "pred", terms = c("reach_tot", "months"))
 ```
 
 # Contigent talks
