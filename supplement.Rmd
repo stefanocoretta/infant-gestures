@@ -1,0 +1,303 @@
+---
+title: A cross cultural analysis of early prelinguistic gesture development and its
+  relationship to language development
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath("./"))
+library(tidyverse)
+theme_set(theme_minimal())
+
+img_path <- "./img"
+```
+
+```{r read-data}
+gestures <- read_csv("./data/gestures.csv")
+
+gestures_tot <- gestures %>%
+  group_by(dyad, background, months, gesture) %>%
+  summarise(
+    count = sum(count),
+    ct = sum(ct)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    gesture = factor(gesture, levels = c("reach", "ho_gv", "point"))
+  ) %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(
+    back_o = ordered(background, levels = c("English", "Bangladeshi", "Chinese"))
+  )
+
+contrasts(gestures_tot$back_o) <- "contr.treatment"
+
+utterances <- read_csv("./data/utterances.csv")
+
+# NAs not removed in sum()
+utterances_tot <- utterances %>%
+  group_by(dyad, background, months) %>%
+  summarise(
+    utterances = sum(utterances)
+  ) %>%
+  ungroup() %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(
+    back_o = ordered(background, levels = c("English", "Bangladeshi", "Chinese"))
+  )
+
+contrasts(utterances_tot$back_o) <- "contr.treatment"
+
+hg_tot <- filter(gestures_tot, gesture == "ho_gv")
+reach_tot <- filter(gestures_tot, gesture == "reach")
+point_tot <- filter(gestures_tot, gesture == "point")
+all_tot <- gestures_tot %>%
+  group_by(dyad, background, back_o, months) %>%
+  summarise(count = sum(count), ct = sum(ct))
+
+hg_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-reach) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+reach_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-ho_gv) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+reach_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-ho_gv) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+ct_point_lead <- gestures_tot %>%
+  filter(gesture == "point") %>%
+  dplyr::select(-gesture) %>%
+  rename(point = count) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+utter_point_lead <- gestures_tot %>%
+  filter(gesture == "point") %>%
+  right_join(y = utterances_tot) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(count)
+  ) %>%
+  filter(months != 12)
+
+pointing <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count)
+
+vocab_gest <- gestures_tot %>%
+  group_by(dyad, background) %>%
+  summarise(count_tot = sum(count), ct_tot = sum(ct))
+
+vocab_utt <- utterances_tot %>%
+  group_by(dyad, background) %>%
+  summarise(utt_tot = sum(utterances))
+
+vocab <- read_csv("./data/vocab.csv") %>%
+  full_join(y = vocab_gest) %>%
+  full_join(y = vocab_utt) %>%
+  arrange(dyad, months) %>%
+  mutate_if(is.character, as.factor)
+```
+
+# Figures
+
+```{r gest-slope}
+gestures_tot %>%
+  ggplot(aes(as.factor(months), count, colour = background)) +
+  geom_point(alpha = 0.5) +
+  geom_line(aes(group = dyad), alpha = 0.5) +
+  facet_grid(vars(background), vars(gesture)) +
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+  labs(
+    x = "Time sample (infant age in months)",
+    y = "Infant gestures (count)"
+  ) +
+  theme(legend.position = "none")
+
+ggsave("gest-slope.png", path = img_path, width = 6, height = 5)
+```
+
+```{r utter-slope}
+utterances_tot %>%
+  ggplot(aes(as.factor(months), utterances, colour = background)) +
+  geom_point(alpha = 0.5) +
+  geom_line(aes(group = dyad), alpha = 0.5) +
+  facet_grid(background ~ .) +
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+  labs(
+    x = "Time sample (infant age in months)",
+    y = "Maternal utterances (count)"
+  ) +
+  theme(legend.position = "none")
+
+ggsave("utter-slope.png", path = img_path, width = 6, height = 5)
+```
+
+```{r ct-slope}
+all_tot %>%
+  ggplot(aes(as.factor(months), ct, colour = background)) +
+  geom_point(alpha = 0.5) +
+  geom_line(aes(group = dyad), alpha = 0.5) +
+  facet_grid(background ~ .) +
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+  labs(
+    x = "Time sample (infant age in months)",
+    y = "Contingent talk (count)"
+  ) +
+  theme(legend.position = "none")
+
+ggsave("ct-slope.png", path = img_path, width = 6, height = 5)
+```
+
+```{r hg-point-lead}
+hg_point_lead %>%
+  ggplot(aes(ho_gv, lead_point, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(
+    x = "Infant HoGs (count)",
+    y = "Infant pointing gestures (count)"
+  ) +
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+  theme(legend.position = "none")
+
+ggsave("hg-point-lead.png", path = img_path, width = 6, height = 5)
+```
+
+```{r reach-point-lead}
+reach_point_lead %>%
+  ggplot(aes(reach, lead_point, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(
+    x = "Infant reaches (count)",
+    y = "Infant pointing gestures (count)"
+  ) +
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+  theme(legend.position = "none")
+
+ggsave("reach-point-lead.png", path = img_path, width = 6, height = 5)
+```
+
+```{r compr-gest}
+vocab %>%
+  ggplot(aes(count_tot, understand, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months) +
+  scale_color_brewer(type = "qual", palette = "Dark2", name = "Cultural group") +
+  labs(
+    x = "Number of infant gestures",
+    y = "Number of understood words"
+  ) +
+  theme(legend.position = "top")
+
+ggsave("compr-gest.png", path = img_path, width = 6, height = 5)
+```
+
+```{r prod-gest}
+vocab %>%
+  ggplot(aes(count_tot, und_say, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months) +
+  scale_color_brewer(type = "qual", palette = "Dark2", name = "Cultural group") +
+  labs(
+    x = "Number of infant gestures",
+    y = "Number of understood/said words"
+  ) +
+  theme(legend.position = "top")
+
+ggsave("prod-gest.png", path = img_path, width = 6, height = 5)
+```
+
+```{r compr-utter}
+vocab %>%
+  ggplot(aes(utt_tot, understand, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months) +
+  scale_color_brewer(type = "qual", palette = "Dark2", name = "Cultural group") +
+  labs(
+    x = "Maternal utterances (count)",
+    y = "Number of understood words"
+  ) +
+  theme(legend.position = "top")
+
+ggsave("compr-utter.png", path = img_path, width = 6, height = 5)
+```
+
+```{r prod-utter}
+vocab %>%
+  ggplot(aes(utt_tot, und_say, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months) +
+  scale_color_brewer(type = "qual", palette = "Dark2", name = "Cultural group") +
+  labs(
+    x = "Maternal utterances (count)",
+    y = "Number of understood/said words"
+  ) +
+  theme(legend.position = "top")
+
+ggsave("prod-utter.png", path = img_path, width = 6, height = 5)
+```
+
+```{r compr-ct}
+vocab %>%
+  filter(ct_tot < 25) %>%
+  ggplot(aes(ct_tot, understand, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months) +
+  scale_color_brewer(type = "qual", palette = "Dark2", name = "Cultural group") +
+  labs(
+    x = "Contingent talk (count)",
+    y = "Number of understood words"
+  ) +
+  theme(legend.position = "top")
+
+ggsave("compr-ct.png", path = img_path, width = 6, height = 5)
+```
+
+```{r prod-ct}
+vocab %>%
+  filter(ct_tot < 25) %>%
+  ggplot(aes(ct_tot, und_say, colour = background)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(~ months) +
+  scale_color_brewer(type = "qual", palette = "Dark2", name = "Cultural group") +
+  labs(
+    x = "Contingent talk (count)",
+    y = "Number of understood/said words"
+  ) +
+  theme(legend.position = "top")
+
+ggsave("prod-ct.png", path = img_path, width = 6, height = 5)
+```
