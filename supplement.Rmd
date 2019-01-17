@@ -183,8 +183,8 @@ hg_point_lead %>%
     x = "Infant HoGs (count)",
     y = "Infant pointing gestures (count)"
   ) +
-  scale_color_brewer(type = "qual", palette = "Dark2") +
-  theme(legend.position = "none")
+  scale_color_brewer(type = "qual", palette = "Dark2", name = "Cultural group") +
+  theme(legend.position = "bottom")
 
 ggsave("hg-point-lead.png", path = img_path, width = 6, height = 5)
 ```
@@ -198,8 +198,8 @@ reach_point_lead %>%
     x = "Infant reaches (count)",
     y = "Infant pointing gestures (count)"
   ) +
-  scale_color_brewer(type = "qual", palette = "Dark2") +
-  theme(legend.position = "none")
+  scale_color_brewer(type = "qual", palette = "Dark2", name = "Cultural group") +
+  theme(legend.position = "bottom")
 
 ggsave("reach-point-lead.png", path = img_path, width = 6, height = 5)
 ```
@@ -215,7 +215,8 @@ vocab %>%
     x = "Number of infant gestures",
     y = "Number of understood words"
   ) +
-  theme(legend.position = "top")
+  theme_bw() +
+  theme(legend.position = "bottom")
 
 ggsave("compr-gest.png", path = img_path, width = 6, height = 5)
 ```
@@ -231,7 +232,8 @@ vocab %>%
     x = "Number of infant gestures",
     y = "Number of understood/said words"
   ) +
-  theme(legend.position = "top")
+  theme_bw() +
+  theme(legend.position = "bottom")
 
 ggsave("prod-gest.png", path = img_path, width = 6, height = 5)
 ```
@@ -247,7 +249,8 @@ vocab %>%
     x = "Maternal utterances (count)",
     y = "Number of understood words"
   ) +
-  theme(legend.position = "top")
+  theme_bw() +
+  theme(legend.position = "bottom")
 
 ggsave("compr-utter.png", path = img_path, width = 6, height = 5)
 ```
@@ -263,7 +266,8 @@ vocab %>%
     x = "Maternal utterances (count)",
     y = "Number of understood/said words"
   ) +
-  theme(legend.position = "top")
+  theme_bw() +
+  theme(legend.position = "bottom")
 
 ggsave("prod-utter.png", path = img_path, width = 6, height = 5)
 ```
@@ -280,7 +284,8 @@ vocab %>%
     x = "Contingent talk (count)",
     y = "Number of understood words"
   ) +
-  theme(legend.position = "top")
+  theme_bw() +
+  theme(legend.position = "bottom")
 
 ggsave("compr-ct.png", path = img_path, width = 6, height = 5)
 ```
@@ -297,7 +302,8 @@ vocab %>%
     x = "Contingent talk (count)",
     y = "Number of understood/said words"
   ) +
-  theme(legend.position = "top")
+  theme_bw() +
+  theme(legend.position = "bottom")
 
 ggsave("prod-ct.png", path = img_path, width = 6, height = 5)
 ```
