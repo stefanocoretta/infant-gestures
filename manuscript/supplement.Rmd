@@ -1,0 +1,758 @@
+---
+title: "Supplement"
+output: 
+  pdf_document: 
+    highlight: tango
+    number_sections: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath("../"))
+library(MASS)
+library(tidyverse)
+theme_set(theme_minimal())
+library(itsadug)
+library(tidymv) # 
+library(lmerTest)
+library(effects)
+library(simr)
+library(sjPlot)
+```
+
+# Read data
+
+```{r read-data, message=FALSE, cache=FALSE, message=FALSE, warning=FALSE}
+gestures <- read_csv("./data/gestures.csv")
+
+gestures_tot <- gestures %>%
+  group_by(dyad, background, months, gesture) %>%
+  summarise(
+    count = sum(count),
+    ct = sum(ct)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    gesture = factor(gesture, levels = c("reach", "point", "ho_gv"))
+  ) %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(
+    back_o = ordered(background, levels = c("English", "Bangladeshi", "Chinese"))
+  )
+
+contrasts(gestures_tot$back_o) <- "contr.treatment"
+
+utterances <- read_csv("./data/utterances.csv")
+
+# NAs not removed in sum()
+utterances_tot <- utterances %>%
+  group_by(dyad, background, months) %>%
+  summarise(
+    utterances = sum(utterances)
+  ) %>%
+  ungroup() %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(
+    back_o = ordered(background, levels = c("English", "Bangladeshi", "Chinese"))
+  )
+
+contrasts(utterances_tot$back_o) <- "contr.treatment"
+
+hg_tot <- filter(gestures_tot, gesture == "ho_gv")
+reach_tot <- filter(gestures_tot, gesture == "reach")
+point_tot <- filter(gestures_tot, gesture == "point")
+all_tot <- gestures_tot %>%
+  group_by(dyad, back_o, months) %>%
+  summarise(count = sum(count), ct = sum(ct))
+
+hg_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-reach) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+reach_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-ho_gv) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+reach_point_lead <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count) %>%
+  dplyr::select(-ho_gv) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+ct_point_lead <- gestures_tot %>%
+  filter(gesture == "point") %>%
+  dplyr::select(-gesture) %>%
+  rename(point = count) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(point)
+  ) %>%
+  filter(months != 12)
+
+utter_point_lead <- gestures_tot %>%
+  filter(gesture == "point") %>%
+  right_join(y = utterances_tot) %>%
+  group_by(dyad) %>%
+  mutate(
+    lead_point = lead(count)
+  ) %>%
+  filter(months != 12)
+
+pointing <- gestures_tot %>%
+  dplyr::select(-ct) %>%
+  spread(gesture, count)
+
+gestures <- read_csv("./data/gestures.csv")
+
+gestures_tot_2 <- gestures %>%
+  group_by(dyad, background, months, gesture) %>%
+  summarise(
+    count = sum(count),
+    ct = sum(ct)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    gesture = factor(gesture, levels = c("reach", "point", "ho_gv"))
+  ) %>%
+  mutate_if(is.character, as.factor)
+
+point <- gestures %>%
+  filter(gesture == "point") %>%
+  group_by(dyad, background, months) %>%
+  summarise(
+    count = sum(count)
+  ) %>%
+  ungroup() %>%
+  mutate_if(is.character, as.factor)
+
+utter_point <- left_join(utterances_tot, point) %>%
+  rename(point = count)
+
+utterances_compl <- utterances %>% na.omit()
+utterances_tcompl <- utterances_tot %>% na.omit()
+
+hgp_tot <- gestures_tot_2 %>%
+  filter(gesture != "reach") %>%
+  group_by(dyad, background) %>%
+  summarise(hgp_tot = sum(count))
+
+reach_tot_2 <- gestures_tot_2 %>%
+  filter(gesture == "reach") %>%
+  group_by(dyad, background) %>%
+  summarise(reach_tot = sum(count))
+
+vocab_gest <- gestures_tot_2 %>%
+  group_by(dyad, background) %>%
+  summarise(count_tot = sum(count), ct_tot = sum(ct)) %>%
+  full_join(y = hgp_tot) %>%
+  full_join(y = reach_tot_2)
+
+vocab_utt <- utterances_tot %>%
+  group_by(dyad, background) %>%
+  summarise(utt_tot = sum(utterances))
+
+vocab <- read_csv("./data/vocab.csv") %>%
+  full_join(y = vocab_gest) %>%
+  full_join(y = vocab_utt) %>%
+  arrange(dyad, months) %>%
+  mutate_if(is.character, as.factor)
+```
+
+# Analysis 1a. The development of reaches, hold out and gives (HoGs), and points from 10-12 months.
+
+## Reaches development
+
+```{r reach-gam}
+reach_nb <- glm.nb(count ~ months, data = reach_tot)
+
+reach_gam <- gam(
+  count ~
+    back_o +
+    s(months, k = 3) +
+    s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = reach_tot,
+  method = "ML",
+  family = negbin(0.986)
+)
+summary(reach_gam)
+
+reach_gam_null <- gam(
+  count ~
+    # back_o +
+    s(months, k = 3) +
+    # s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = reach_tot,
+  method = "ML",
+  family = negbin(0.986)
+)
+
+compareML(reach_gam_null, reach_gam)
+
+reach_gam_2 <- gam(
+  count ~
+    s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = reach_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+reach_gam_2_null <- gam(
+  count ~
+    # s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = reach_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+compareML(reach_gam_2_null, reach_gam_2)
+```
+
+```{r reach-gam-plot}
+plot_smooths(reach_gam, months, facet_terms = back_o, series_length = 25)
+```
+
+## HGs development
+
+```{r hg-gam}
+hg_nb <- glm.nb(count ~ months, data = hg_tot)
+
+hg_gam <- gam(
+  count ~
+    back_o +
+    s(months, k = 3) +
+    s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = hg_tot,
+  method = "ML",
+  family = negbin(0.6434)
+)
+summary(hg_gam)
+
+hg_gam_null <- gam(
+  count ~
+    # back_o +
+    s(months, k = 3) +
+    # s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = hg_tot,
+  method = "ML",
+  family = negbin(0.6434)
+)
+
+compareML(hg_gam_null, hg_gam)
+
+hg_gam_2 <- gam(
+  count ~
+    s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = hg_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+hg_gam_2_null <- gam(
+  count ~
+    # s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = hg_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+compareML(hg_gam_2_null, hg_gam_2)
+```
+
+```{r hg-gam-plot}
+plot_smooths(hg_gam, months, facet_terms = back_o, series_length = 25)
+```
+
+```{r hg-gam-plot-2}
+plot_smooths(hg_gam_2, months, series_length = 25)
+```
+
+## Points development
+
+```{r point-gam}
+point_nb <- glm.nb(count ~ months, data = point_tot)
+
+point_gam <- gam(
+  count ~
+    back_o +
+    s(months, k = 3) +
+    s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = point_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+summary(point_gam)
+
+point_gam_null <- gam(
+  count ~
+    # back_o +
+    s(months, k = 3) +
+    # s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = point_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+
+compareML(point_gam_null, point_gam)
+
+point_gam_2 <- gam(
+  count ~
+    s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = point_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+point_gam_2_null <- gam(
+  count ~
+    # s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = point_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+compareML(point_gam_2_null, point_gam_2)
+```
+
+```{r point-gam-plot}
+plot_smooths(point_gam, months, facet_terms = back_o, series_length = 25)
+```
+
+```{r point-gam-plot-2}
+plot_smooths(point_gam_2, months, series_length = 25)
+```
+
+# Analysis 1b. Frequency of maternal utterances and contingent talk to infants aged 10-12 months.
+
+## Maternal utterances development
+
+```{r utter-gam}
+utter_gam <- gam(
+  utterances ~
+    back_o +
+    s(months, k = 3) +
+    s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = utterances_tot,
+  method = "ML"
+)
+summary(utter_gam)
+
+utter_gam_null <- gam(
+  utterances ~
+    # back_o +
+    s(months, k = 3) +
+    # s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = utterances_tot,
+  method = "ML"
+)
+
+compareML(utter_gam_null, utter_gam)
+
+utter_gam_2 <- gam(
+  utterances ~
+    s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = utterances_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+utter_gam_2_null <- gam(
+  utterances ~
+    # s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = utterances_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+compareML(utter_gam_2_null, utter_gam_2)
+```
+
+```{r utter-gam-plot}
+plot_smooths(utter_gam, months, facet_terms = back_o, series_length = 10)
+```
+
+## Contingent talks development
+
+```{r ct-gam}
+ct_gam <- gam(
+  ct ~
+    back_o +
+    s(months, k = 3) +
+    s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = all_tot,
+  method = "ML"
+)
+summary(ct_gam)
+
+ct_gam_null <- gam(
+  ct ~
+    # back_o +
+    s(months, k = 3) +
+    # s(months, k = 3, by = back_o) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = all_tot,
+  method = "ML"
+)
+
+compareML(ct_gam_null, ct_gam)
+
+ct_gam_2 <- gam(
+  count ~
+    s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = all_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+ct_gam_2_null <- gam(
+  count ~
+    # s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = all_tot,
+  method = "ML",
+  family = negbin(0.1946)
+)
+compareML(ct_gam_2_null, ct_gam_2)
+```
+
+```{r ct-gam-plot}
+plot_smooths(ct_gam, months, facet_terms = back_o, series_length = 10)
+```
+
+```{r ct-gam-plot-2}
+plot_smooths(ct_gam_2, months, series_length = 10)
+```
+
+# Analysis 1c. Predictors of pointing at 12 months
+
+## Reaches
+
+```{r reach-point-lm}
+reach_point_lead_nb <- glm.nb(lead_point ~ reach, data = reach_point_lead)
+
+reach_point_lm <- glmer(
+  lead_point ~
+    reach *
+    background +
+    (1|dyad),
+  data = reach_point_lead,
+  family = negbin(0.2681)
+)
+summary(reach_point_lm)
+```
+
+```{r reach-point-check}
+plot(fitted(reach_point_lm), residuals(reach_point_lm))
+qqnorm(residuals(reach_point_lm))
+```
+
+```{r reach-point-plot}
+plot(allEffects(reach_point_lm))
+```
+
+## HoGs
+
+```{r hg-point-lm}
+hg_point_lead_nb <- glm.nb(lead_point ~ ho_gv, data = filter(hg_point_lead, ho_gv < 20))
+
+hg_point_lm <- glmer(
+  lead_point ~
+    ho_gv *
+    background +
+    (1|dyad),
+  data = filter(hg_point_lead, ho_gv < 20),
+  family = negbin(0.2606)
+)
+summary(hg_point_lm)
+
+hg_point_lm_null <- glmer(
+  lead_point ~
+    ho_gv +
+    background +
+    (1|dyad),
+  data = filter(hg_point_lead, ho_gv < 20),
+  family = negbin(0.2606)
+)
+anova(hg_point_lm_null, hg_point_lm)
+```
+
+```{r hg-point-check}
+plot(fitted(hg_point_lm), residuals(hg_point_lm))
+qqnorm(residuals(hg_point_lm))
+```
+
+```{r hg-point-plot}
+hg_eff <- as_tibble(effect("ho_gv:background", hg_point_lm, xlevels = 100))
+
+ggplot(hg_eff, aes(ho_gv, fit)) +
+  geom_ribbon(aes(ymax = upper, ymin = lower), alpha = 0.2) +
+  geom_line() +
+  facet_grid(~ background) +
+  coord_cartesian(ylim = c(0, 100))
+
+ggplot(hg_eff, aes(ho_gv, fit)) +
+  geom_ribbon(aes(ymax = upper, ymin = lower), alpha = 0.2) +
+  geom_line() +
+  facet_grid(~ background) +
+  coord_cartesian(ylim = c(0, 20))
+```
+
+# Analysis 2. Predictors of vocabulary scores at 12 and 18 months
+
+## Comprehension at 12 and 18 months
+
+### All gestures combined
+
+```{r all-gest-lm}
+all_gest_lm <- lmer(
+  understand ~
+    count_tot *
+    months *
+    background +
+    (1|dyad),
+  data = vocab
+)
+summary(all_gest_lm)
+```
+
+```{r all-gest-lm-2}
+all_gest_lm_2 <- lmer(
+  understand ~
+    count_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(all_gest_lm_2)
+```
+
+```{r all-gest-lm-2-plot}
+plot_model(all_gest_lm_2, type = "pred", terms = c("count_tot", "months"))
+```
+
+### HoGs + points
+
+```{r hgp-lm}
+hgp_lm <- lmer(
+  understand ~
+    hgp_tot *
+    months *
+    background +
+    (1|dyad),
+  data = vocab
+)
+summary(hgp_lm)
+```
+
+```{r hgp-lm-2}
+hgp_lm_2 <- lmer(
+  understand ~
+    hgp_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(hgp_lm_2)
+```
+
+```{r hgp-lm-2-plot}
+plot_model(hgp_lm_2, type = "pred", terms = c("hgp_tot", "months"))
+```
+
+### Reaches
+
+```{r reach-lm}
+reach_lm <- lmer(
+  understand ~
+    reach_tot *
+    months *
+    background +
+    (1|dyad),
+  data = vocab
+)
+summary(reach_lm)
+```
+
+```{r reach-lm-2}
+reach_lm_2 <- lmer(
+  understand ~
+    reach_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(reach_lm_2)
+```
+
+```{r reach-lm-2-plot}
+plot_model(reach_lm_2, type = "pred", terms = c("reach_tot", "months"))
+```
+
+### Maternal utterances
+
+```{r utt-lm}
+utt_lm <- lmer(
+  understand ~
+    utt_tot *
+    months *
+    background +
+    (1|dyad),
+  data = vocab
+)
+summary(utt_lm)
+```
+
+```{r utt-lm-2}
+utt_lm_2 <- lmer(
+  understand ~
+    utt_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(utt_lm_2)
+```
+
+```{r utt-lm-2-plot}
+plot_model(utt_lm_2, type = "pred", terms = c("utt_tot", "months"))
+```
+
+### Contingent talks
+
+```{r ct-lm}
+ct_lm <- lmer(
+  understand ~
+    ct_tot *
+    months *
+    background +
+    (1|dyad),
+  data = vocab
+)
+summary(ct_lm)
+```
+
+```{r ct-lm-2}
+ct_lm_2 <- lmer(
+  understand ~
+    ct_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(ct_lm_2)
+```
+
+```{r ct-lm-2-plot}
+plot_model(ct_lm_2, type = "pred", terms = c("ct_tot", "months"))
+```
+
+## Production at 12 and 18 months
+
+### All gestures combined
+
+```{r all-gest-lm-2-undsay}
+all_gest_lm_2_undsay <- lmer(
+  und_say ~
+    count_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(all_gest_lm_2_undsay)
+```
+
+```{r all-gest-lm-2-undsay-plot}
+plot_model(all_gest_lm_2_undsay, type = "pred", terms = c("count_tot", "months"))
+```
+
+### HoGs + point
+
+```{r hgp-lm-2-undsay}
+hgp_lm_2_undsay <- lmer(
+  und_say ~
+    hgp_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(hgp_lm_2_undsay)
+```
+
+```{r hgp-lm-2-undsay-plot}
+plot_model(hgp_lm_2_undsay, type = "pred", terms = c("hgp_tot", "months"))
+```
+
+### Reaches
+
+```{r reach-lm-2-undsay}
+reach_lm_2_undsay <- lmer(
+  und_say ~
+    reach_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(reach_lm_2_undsay)
+```
+
+```{r reach-lm-2-undsay-plot}
+plot_model(reach_lm_2_undsay, type = "pred", terms = c("reach_tot", "months"))
+```
+
+### Maternal utterances
+
+```{r utt-lm-2-undsay}
+utt_lm_2_undsay <- lmer(
+  und_say ~
+    utt_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(utt_lm_2_undsay)
+```
+
+```{r utt-lm-2-undsay-plot}
+plot_model(utt_lm_2_undsay, type = "pred", terms = c("utt_tot", "months"))
+```
+
+### Contingent talks
+
+```{r ct-lm-2-undsay}
+ct_lm_2_undsay <- lmer(
+  und_say ~
+    ct_tot *
+    months +
+    (1|dyad),
+  data = vocab
+)
+summary(ct_lm_2_undsay)
+```
+
+```{r ct-lm-2-undsay-plot}
+plot_model(ct_lm_2_undsay, type = "pred", terms = c("ct_tot", "months"))
+```
