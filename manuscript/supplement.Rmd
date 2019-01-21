@@ -13,7 +13,7 @@ library(MASS)
 library(tidyverse)
 theme_set(theme_minimal())
 library(itsadug)
-library(tidymv) # 
+library(tidymv) # https://github.com/stefanocoretta/tidymv
 library(lmerTest)
 library(effects)
 library(simr)
