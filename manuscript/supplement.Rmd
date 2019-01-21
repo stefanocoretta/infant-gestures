@@ -22,6 +22,8 @@ library(sjPlot)
 
 # Read data
 
+The following chunk reads the data and processes it for analysis.
+
 ```{r read-data, message=FALSE, cache=FALSE, message=FALSE, warning=FALSE}
 gestures <- read_csv("./data/gestures.csv")
 
@@ -44,11 +46,10 @@ contrasts(gestures_tot$back_o) <- "contr.treatment"
 
 utterances <- read_csv("./data/utterances.csv")
 
-# NAs not removed in sum()
 utterances_tot <- utterances %>%
   group_by(dyad, background, months) %>%
   summarise(
-    utterances = sum(utterances)
+    utterances = sum(utterances) # there are NAs that must be kept
   ) %>%
   ungroup() %>%
   mutate_if(is.character, as.factor) %>%
@@ -176,7 +177,14 @@ vocab <- read_csv("./data/vocab.csv") %>%
 
 # Analysis 1a. The development of reaches, hold out and gives (HoGs), and points from 10-12 months.
 
+For analysis 1a, we fitted a series of GAMMs using the negative binomial function.
+The choice of using the negative binomial rather than the Poisson distribution is justified by the overdispersion of the data (and the very long tail in the distribution).
+The negative binomial distribution requires the specification of the theta parameter.
+The parameter has been estimated from the data by fitting a generalised linear model with the negative binomial distribution using `MASS::glm.nb`.
+
 ## Reaches development
+
+The following models test cultural group.
 
 ```{r reach-gam}
 reach_nb <- glm.nb(count ~ months, data = reach_tot)
@@ -205,7 +213,15 @@ reach_gam_null <- gam(
 )
 
 compareML(reach_gam_null, reach_gam)
+```
 
+```{r reach-gam-plot}
+plot_smooths(reach_gam, months, facet_terms = back_o, series_length = 25)
+```
+
+The following models test time sample.
+
+```{r reach-gam-2}
 reach_gam_2 <- gam(
   count ~
     s(months, k = 3) +
@@ -225,11 +241,9 @@ reach_gam_2_null <- gam(
 compareML(reach_gam_2_null, reach_gam_2)
 ```
 
-```{r reach-gam-plot}
-plot_smooths(reach_gam, months, facet_terms = back_o, series_length = 25)
-```
-
 ## HGs development
+
+The following models test cultural group.
 
 ```{r hg-gam}
 hg_nb <- glm.nb(count ~ months, data = hg_tot)
@@ -258,7 +272,19 @@ hg_gam_null <- gam(
 )
 
 compareML(hg_gam_null, hg_gam)
+```
 
+```{r hg-gam-plot}
+plot_smooths(hg_gam, months, facet_terms = back_o, series_length = 25)
+```
+
+```{r hg-gam-plot-2}
+plot_smooths(hg_gam_2, months, series_length = 25)
+```
+
+The following models test time sample.
+
+```{r hg-gam-2}
 hg_gam_2 <- gam(
   count ~
     s(months, k = 3) +
@@ -278,15 +304,9 @@ hg_gam_2_null <- gam(
 compareML(hg_gam_2_null, hg_gam_2)
 ```
 
-```{r hg-gam-plot}
-plot_smooths(hg_gam, months, facet_terms = back_o, series_length = 25)
-```
-
-```{r hg-gam-plot-2}
-plot_smooths(hg_gam_2, months, series_length = 25)
-```
-
 ## Points development
+
+The following models test cultural group.
 
 ```{r point-gam}
 point_nb <- glm.nb(count ~ months, data = point_tot)
@@ -315,7 +335,19 @@ point_gam_null <- gam(
 )
 
 compareML(point_gam_null, point_gam)
+```
 
+```{r point-gam-plot}
+plot_smooths(point_gam, months, facet_terms = back_o, series_length = 25)
+```
+
+```{r point-gam-plot-2}
+plot_smooths(point_gam_2, months, series_length = 25)
+```
+
+The following models test time sample.
+
+```{r point-gam-2}
 point_gam_2 <- gam(
   count ~
     s(months, k = 3) +
@@ -335,17 +367,14 @@ point_gam_2_null <- gam(
 compareML(point_gam_2_null, point_gam_2)
 ```
 
-```{r point-gam-plot}
-plot_smooths(point_gam, months, facet_terms = back_o, series_length = 25)
-```
-
-```{r point-gam-plot-2}
-plot_smooths(point_gam_2, months, series_length = 25)
-```
-
 # Analysis 1b. Frequency of maternal utterances and contingent talk to infants aged 10-12 months.
 
+For maternal utterances we used a normal distribution, since the distribution of the data was almost normal.
+For maternal contingent talks instead we used again the negative binomial distribution for the same reasons as above.
+
 ## Maternal utterances development
+
+The following models test cultural group.
 
 ```{r utter-gam}
 utter_gam <- gam(
@@ -370,33 +399,41 @@ utter_gam_null <- gam(
 )
 
 compareML(utter_gam_null, utter_gam)
-
-utter_gam_2 <- gam(
-  utterances ~
-    s(months, k = 3) +
-    s(months, dyad, k = 2, bs = "fs", m = 1),
-  data = utterances_tot,
-  method = "ML",
-  family = negbin(0.1946)
-)
-utter_gam_2_null <- gam(
-  utterances ~
-    # s(months, k = 3) +
-    s(months, dyad, k = 2, bs = "fs", m = 1),
-  data = utterances_tot,
-  method = "ML",
-  family = negbin(0.1946)
-)
-compareML(utter_gam_2_null, utter_gam_2)
 ```
 
 ```{r utter-gam-plot}
 plot_smooths(utter_gam, months, facet_terms = back_o, series_length = 10)
 ```
 
+The following models test time sample.
+
+```{r utter-gam-2}
+utter_gam_2 <- gam(
+  utterances ~
+    s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = utterances_tot,
+  method = "ML"
+)
+
+utter_gam_2_null <- gam(
+  utterances ~
+    # s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = utterances_tot,
+  method = "ML"
+)
+
+compareML(utter_gam_2_null, utter_gam_2)
+```
+
 ## Contingent talks development
 
+The following models test cultural group.
+
 ```{r ct-gam}
+ct_nb <- glm.nb(ct ~ months, data = all_tot)
+
 ct_gam <- gam(
   ct ~
     back_o +
@@ -404,7 +441,8 @@ ct_gam <- gam(
     s(months, k = 3, by = back_o) +
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = all_tot,
-  method = "ML"
+  method = "ML",
+  family = negbin(0.3845)
 )
 summary(ct_gam)
 
@@ -415,39 +453,44 @@ ct_gam_null <- gam(
     # s(months, k = 3, by = back_o) +
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = all_tot,
-  method = "ML"
+  method = "ML",
+  family = negbin(0.3845)
 )
 
 compareML(ct_gam_null, ct_gam)
-
-ct_gam_2 <- gam(
-  count ~
-    s(months, k = 3) +
-    s(months, dyad, k = 2, bs = "fs", m = 1),
-  data = all_tot,
-  method = "ML",
-  family = negbin(0.1946)
-)
-ct_gam_2_null <- gam(
-  count ~
-    # s(months, k = 3) +
-    s(months, dyad, k = 2, bs = "fs", m = 1),
-  data = all_tot,
-  method = "ML",
-  family = negbin(0.1946)
-)
-compareML(ct_gam_2_null, ct_gam_2)
 ```
 
 ```{r ct-gam-plot}
 plot_smooths(ct_gam, months, facet_terms = back_o, series_length = 10)
 ```
 
-```{r ct-gam-plot-2}
-plot_smooths(ct_gam_2, months, series_length = 10)
+The following models test time sample.
+
+```{r ct-gam-2}
+ct_gam_2 <- gam(
+  count ~
+    s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = all_tot,
+  method = "ML",
+  family = negbin(0.3845)
+)
+
+ct_gam_2_null <- gam(
+  count ~
+    # s(months, k = 3) +
+    s(months, dyad, k = 2, bs = "fs", m = 1),
+  data = all_tot,
+  method = "ML",
+  family = negbin(0.3845)
+)
+
+compareML(ct_gam_2_null, ct_gam_2)
 ```
 
 # Analysis 1c. Predictors of pointing at 12 months
+
+The following GLMMs test the relation between pointing as the outcome variable and reaches/HoGs.
 
 ## Reaches
 
@@ -471,7 +514,19 @@ qqnorm(residuals(reach_point_lm))
 ```
 
 ```{r reach-point-plot}
-plot(allEffects(reach_point_lm))
+reach_eff <- as_tibble(effect("reach:background", reach_point_lm, xlevels = 100))
+
+ggplot(reach_eff, aes(reach, fit)) +
+  geom_ribbon(aes(ymax = upper, ymin = lower), alpha = 0.2) +
+  geom_line() +
+  facet_grid(~ background) +
+  coord_cartesian(ylim = c(0, 100))
+
+ggplot(reach_eff, aes(reach, fit)) +
+  geom_ribbon(aes(ymax = upper, ymin = lower), alpha = 0.2) +
+  geom_line() +
+  facet_grid(~ background) +
+  coord_cartesian(ylim = c(0, 20))
 ```
 
 ## HoGs
@@ -756,3 +811,10 @@ summary(ct_lm_2_undsay)
 ```{r ct-lm-2-undsay-plot}
 plot_model(ct_lm_2_undsay, type = "pred", terms = c("ct_tot", "months"))
 ```
+
+# R session
+
+```{r session}
+devtools::session_info()
+```
+
