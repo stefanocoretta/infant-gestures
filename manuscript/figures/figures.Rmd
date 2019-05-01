@@ -178,7 +178,7 @@ ggsave("ct-slope.png", path = img_path, width = 6, height = 5)
 hg_point_lead %>%
   ggplot(aes(ho_gv, lead_point, colour = background)) +
   geom_point() +
-  geom_smooth(method = "lm") +
+  geom_smooth(method = "lm", alpha = 0.2) +
   labs(
     x = "Infant HoGs (count)",
     y = "Infant pointing gestures (count)"
@@ -193,7 +193,7 @@ ggsave("hg-point-lead.png", path = img_path, width = 6, height = 5)
 reach_point_lead %>%
   ggplot(aes(reach, lead_point, colour = background)) +
   geom_point() +
-  geom_smooth(method = "lm") +
+  geom_smooth(method = "lm", alpha = 0.2) +
   labs(
     x = "Infant reaches (count)",
     y = "Infant pointing gestures (count)"
@@ -208,7 +208,7 @@ ggsave("reach-point-lead.png", path = img_path, width = 6, height = 5)
 vocab %>%
   ggplot(aes(count_tot, understand, colour = background)) +
   geom_point() +
-  geom_smooth(method = "lm") +
+  geom_smooth(method = "lm", alpha = 0.2) +
   facet_grid(~ months) +
   scale_color_brewer(type = "qual", palette = "Dark2", name = "Cultural group") +
   labs(
@@ -225,7 +225,7 @@ ggsave("compr-gest.png", path = img_path, width = 6, height = 5)
 vocab %>%
   ggplot(aes(count_tot, und_say, colour = background)) +
   geom_point() +
-  geom_smooth(method = "lm") +
+  geom_smooth(method = "lm", alpha = 0.2) +
   facet_grid(~ months) +
   scale_color_brewer(type = "qual", palette = "Dark2", name = "Cultural group") +
   labs(
@@ -242,7 +242,7 @@ ggsave("prod-gest.png", path = img_path, width = 6, height = 5)
 vocab %>%
   ggplot(aes(utt_tot, understand, colour = background)) +
   geom_point() +
-  geom_smooth(method = "lm") +
+  geom_smooth(method = "lm", alpha = 0.2) +
   facet_grid(~ months) +
   scale_color_brewer(type = "qual", palette = "Dark2", name = "Cultural group") +
   labs(
@@ -259,7 +259,7 @@ ggsave("compr-utter.png", path = img_path, width = 6, height = 5)
 vocab %>%
   ggplot(aes(utt_tot, und_say, colour = background)) +
   geom_point() +
-  geom_smooth(method = "lm") +
+  geom_smooth(method = "lm", alpha = 0.2) +
   facet_grid(~ months) +
   scale_color_brewer(type = "qual", palette = "Dark2", name = "Cultural group") +
   labs(
@@ -277,7 +277,7 @@ vocab %>%
   filter(ct_tot < 25) %>%
   ggplot(aes(ct_tot, understand, colour = background)) +
   geom_point() +
-  geom_smooth(method = "lm") +
+  geom_smooth(method = "lm", alpha = 0.2) +
   facet_grid(~ months) +
   scale_color_brewer(type = "qual", palette = "Dark2", name = "Cultural group") +
   labs(
@@ -295,7 +295,7 @@ vocab %>%
   filter(ct_tot < 25) %>%
   ggplot(aes(ct_tot, und_say, colour = background)) +
   geom_point() +
-  geom_smooth(method = "lm") +
+  geom_smooth(method = "lm", alpha = 0.2) +
   facet_grid(~ months) +
   scale_color_brewer(type = "qual", palette = "Dark2", name = "Cultural group") +
   labs(
