@@ -139,7 +139,7 @@ gestures_tot %>%
   ) +
   theme(legend.position = "none")
 
-ggsave("gest-slope.png", path = img_path, width = 6, height = 5)
+ggsave("gest-slope.jpg", path = img_path, width = 6, height = 5)
 ```
 
 ```{r utter-slope}
@@ -155,7 +155,7 @@ utterances_tot %>%
   ) +
   theme(legend.position = "none")
 
-ggsave("utter-slope.png", path = img_path, width = 6, height = 5)
+ggsave("utter-slope.jpg", path = img_path, width = 6, height = 5)
 ```
 
 ```{r ct-slope}
@@ -171,7 +171,7 @@ all_tot %>%
   ) +
   theme(legend.position = "none")
 
-ggsave("ct-slope.png", path = img_path, width = 6, height = 5)
+ggsave("ct-slope.jpg", path = img_path, width = 6, height = 5)
 ```
 
 ```{r hg-point-lead}
@@ -186,7 +186,7 @@ hg_point_lead %>%
   scale_color_brewer(type = "qual", palette = "Dark2", name = "Cultural group") +
   theme(legend.position = "bottom")
 
-ggsave("hg-point-lead.png", path = img_path, width = 6, height = 5)
+ggsave("hg-point-lead.jpg", path = img_path, width = 6, height = 5)
 ```
 
 ```{r reach-point-lead}
@@ -201,7 +201,7 @@ reach_point_lead %>%
   scale_color_brewer(type = "qual", palette = "Dark2", name = "Cultural group") +
   theme(legend.position = "bottom")
 
-ggsave("reach-point-lead.png", path = img_path, width = 6, height = 5)
+ggsave("reach-point-lead.jpg", path = img_path, width = 6, height = 5)
 ```
 
 ```{r compr-gest}
@@ -218,7 +218,7 @@ vocab %>%
   theme_bw() +
   theme(legend.position = "bottom")
 
-ggsave("compr-gest.png", path = img_path, width = 6, height = 5)
+ggsave("compr-gest.jpg", path = img_path, width = 6, height = 5)
 ```
 
 ```{r prod-gest}
@@ -235,7 +235,7 @@ vocab %>%
   theme_bw() +
   theme(legend.position = "bottom")
 
-ggsave("prod-gest.png", path = img_path, width = 6, height = 5)
+ggsave("prod-gest.jpg", path = img_path, width = 6, height = 5)
 ```
 
 ```{r compr-utter}
@@ -252,7 +252,7 @@ vocab %>%
   theme_bw() +
   theme(legend.position = "bottom")
 
-ggsave("compr-utter.png", path = img_path, width = 6, height = 5)
+ggsave("compr-utter.jpg", path = img_path, width = 6, height = 5)
 ```
 
 ```{r prod-utter}
@@ -269,7 +269,7 @@ vocab %>%
   theme_bw() +
   theme(legend.position = "bottom")
 
-ggsave("prod-utter.png", path = img_path, width = 6, height = 5)
+ggsave("prod-utter.jpg", path = img_path, width = 6, height = 5)
 ```
 
 ```{r compr-ct}
@@ -287,7 +287,7 @@ vocab %>%
   theme_bw() +
   theme(legend.position = "bottom")
 
-ggsave("compr-ct.png", path = img_path, width = 6, height = 5)
+ggsave("compr-ct.jpg", path = img_path, width = 6, height = 5)
 ```
 
 ```{r prod-ct}
@@ -305,5 +305,5 @@ vocab %>%
   theme_bw() +
   theme(legend.position = "bottom")
 
-ggsave("prod-ct.png", path = img_path, width = 6, height = 5)
+ggsave("prod-ct.jpg", path = img_path, width = 6, height = 5)
 ```
