@@ -33,7 +33,7 @@ gestures_tot <- gestures %>%
   ) %>%
   mutate_if(is.character, as.factor) %>%
   mutate(
-    back_o = ordered(background, levels = c("English", "Bangladeshi", "Chinese"))
+    back_o = ordered(background, levels = c("English", "Bengali", "Chinese"))
   )
 
 contrasts(gestures_tot$back_o) <- "contr.treatment"
@@ -49,7 +49,7 @@ utterances_tot <- utterances %>%
   ungroup() %>%
   mutate_if(is.character, as.factor) %>%
   mutate(
-    back_o = ordered(background, levels = c("English", "Bangladeshi", "Chinese"))
+    back_o = ordered(background, levels = c("English", "Bengali", "Chinese"))
   )
 
 contrasts(utterances_tot$back_o) <- "contr.treatment"
