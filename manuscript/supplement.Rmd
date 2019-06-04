@@ -3,7 +3,9 @@ title: "Supplement"
 output: 
   pdf_document: 
     highlight: tango
+    latex_engine: xelatex
     number_sections: yes
+mainfont: Lato
 ---
 
 ```{r setup, include=FALSE}
@@ -174,6 +176,8 @@ vocab <- read_csv("./data/vocab.csv") %>%
   arrange(dyad, months) %>%
   mutate_if(is.character, as.factor)
 ```
+
+\newpage
 
 # Analysis 1a. The development of reaches, hold out and gives (HoGs), and points from 10-12 months.
 
@@ -371,6 +375,8 @@ compareML(point_gam_2_null, point_gam_2)
 plot_smooths(point_gam_2, months, series_length = 25, transform = exp)
 ```
 
+\newpage
+
 # Analysis 1b. Frequency of maternal utterances and contingent talk to infants aged 10-12 months.
 
 For maternal utterances we used a normal distribution, since the distribution of the data was almost normal.
@@ -496,6 +502,8 @@ compareML(ct_gam_2_null, ct_gam_2)
 plot_smooths(ct_gam_2, months, series_length = 10, transform = exp)
 ```
 
+\newpage
+
 # Analysis 1c. Predictors of pointing at 12 months
 
 The following GLMMs test the relation between pointing as the outcome variable and reaches/HoGs.
@@ -583,6 +591,8 @@ ggplot(hg_eff, aes(ho_gv, fit)) +
   facet_grid(~ background) +
   coord_cartesian(ylim = c(0, 20))
 ```
+
+\newpage
 
 # Analysis 2. Predictors of vocabulary scores at 12 and 18 months
 
@@ -819,6 +829,8 @@ summary(ct_lm_2_undsay)
 ```{r ct-lm-2-undsay-plot}
 plot_model(ct_lm_2_undsay, type = "pred", terms = c("ct_tot", "months"))
 ```
+
+\newpage
 
 # R session
 
