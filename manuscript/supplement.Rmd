@@ -174,6 +174,10 @@ vocab <- read_csv("./data/vocab.csv") %>%
   full_join(y = vocab_gest) %>%
   full_join(y = vocab_utt) %>%
   arrange(dyad, months) %>%
+  mutate(
+    months = as.factor(months),
+    background = factor(background, levels = c("English", "Bengali", "Chinese"))
+  ) %>%
   mutate_if(is.character, as.factor)
 ```
 
@@ -601,146 +605,91 @@ ggplot(hg_eff, aes(ho_gv, fit)) +
 ### All gestures combined
 
 ```{r all-gest-lm}
-all_gest_lm <- lmer(
+all_gest_lm <- glm(
   comprehension ~
     count_tot *
     months *
-    background +
-    (1|dyad),
-  data = vocab
+    background,
+  data = vocab,
+  family = poisson
 )
 summary(all_gest_lm)
 ```
 
-```{r all-gest-lm-2}
-all_gest_lm_2 <- lmer(
-  comprehension ~
-    count_tot *
-    months +
-    (1|dyad),
-  data = vocab
-)
-summary(all_gest_lm_2)
-```
-
-```{r all-gest-lm-2-plot}
-plot_model(all_gest_lm_2, type = "pred", terms = c("count_tot", "months"))
+```{r all-gest-lm-plot}
+plot_model(all_gest_lm, type = "pred", terms = c("count_tot", "months", "background"))
 ```
 
 ### HoGs + points
 
 ```{r hgp-lm}
-hgp_lm <- lmer(
+hgp_lm <- glm(
   comprehension ~
     hgp_tot *
     months *
-    background +
-    (1|dyad),
-  data = vocab
+    background,
+  data = vocab,
+  family = poisson()
 )
 summary(hgp_lm)
 ```
 
-```{r hgp-lm-2}
-hgp_lm_2 <- lmer(
-  comprehension ~
-    hgp_tot *
-    months +
-    (1|dyad),
-  data = vocab
-)
-summary(hgp_lm_2)
-```
-
 ```{r hgp-lm-2-plot}
-plot_model(hgp_lm_2, type = "pred", terms = c("hgp_tot", "months"))
+plot_model(hgp_lm, type = "pred", terms = c("hgp_tot", "months", "background"))
 ```
 
 ### Reaches
 
 ```{r reach-lm}
-reach_lm <- lmer(
+reach_lm <- glm(
   comprehension ~
     reach_tot *
     months *
-    background +
-    (1|dyad),
-  data = vocab
+    background,
+  data = vocab,
+  family = poisson()
 )
 summary(reach_lm)
 ```
 
-```{r reach-lm-2}
-reach_lm_2 <- lmer(
-  comprehension ~
-    reach_tot *
-    months +
-    (1|dyad),
-  data = vocab
-)
-summary(reach_lm_2)
-```
-
 ```{r reach-lm-2-plot}
-plot_model(reach_lm_2, type = "pred", terms = c("reach_tot", "months"))
+plot_model(reach_lm, type = "pred", terms = c("reach_tot", "months", "background"))
 ```
 
 ### Maternal utterances
 
 ```{r utt-lm}
-utt_lm <- lmer(
+utt_lm <- glm(
   comprehension ~
     utt_tot *
     months *
-    background +
-    (1|dyad),
-  data = vocab
+    background,
+  data = vocab,
+  family = poisson()
 )
 summary(utt_lm)
 ```
 
-```{r utt-lm-2}
-utt_lm_2 <- lmer(
-  comprehension ~
-    utt_tot *
-    months +
-    (1|dyad),
-  data = vocab
-)
-summary(utt_lm_2)
-```
-
 ```{r utt-lm-2-plot}
-plot_model(utt_lm_2, type = "pred", terms = c("utt_tot", "months"))
+plot_model(utt_lm, type = "pred", terms = c("utt_tot", "months", "background"))
 ```
 
 ### Contingent talks
 
 ```{r ct-lm}
-ct_lm <- lmer(
+ct_lm <- glm(
   comprehension ~
     ct_tot *
     months *
-    background +
-    (1|dyad),
-  data = vocab
+    background,
+  data = vocab,
+  family = poisson()
 )
 summary(ct_lm)
 ```
 
-```{r ct-lm-2}
-ct_lm_2 <- lmer(
-  comprehension ~
-    ct_tot *
-    months +
-    (1|dyad),
-  data = vocab
-)
-summary(ct_lm_2)
-```
-
 ```{r ct-lm-2-plot}
-plot_model(ct_lm_2, type = "pred", terms = c("ct_tot", "months"))
+plot_model(ct_lm, type = "pred", terms = c("ct_tot", "months", "background"))
 ```
 
 ## Production at 12 and 18 months
@@ -748,86 +697,91 @@ plot_model(ct_lm_2, type = "pred", terms = c("ct_tot", "months"))
 ### All gestures combined
 
 ```{r all-gest-lm-2-undsay}
-all_gest_lm_2_undsay <- lmer(
+all_gest_prod <- glm(
   production ~
     count_tot *
-    months +
-    (1|dyad),
-  data = vocab
+    months *
+    background,
+  data = vocab,
+  family = poisson()
 )
-summary(all_gest_lm_2_undsay)
+summary(all_gest_prod)
 ```
 
 ```{r all-gest-lm-2-undsay-plot}
-plot_model(all_gest_lm_2_undsay, type = "pred", terms = c("count_tot", "months"))
+plot_model(all_gest_prod, type = "pred", terms = c("count_tot", "months", "background"))
 ```
 
 ### HoGs + point
 
 ```{r hgp-lm-2-undsay}
-hgp_lm_2_undsay <- lmer(
+hgp_prod <- glm(
   production ~
     hgp_tot *
-    months +
-    (1|dyad),
-  data = vocab
+    months *
+    background,
+  data = vocab,
+  poisson()
 )
-summary(hgp_lm_2_undsay)
+summary(hgp_prod)
 ```
 
 ```{r hgp-lm-2-undsay-plot}
-plot_model(hgp_lm_2_undsay, type = "pred", terms = c("hgp_tot", "months"))
+plot_model(hgp_prod, type = "pred", terms = c("hgp_tot", "months", "background"))
 ```
 
 ### Reaches
 
 ```{r reach-lm-2-undsay}
-reach_lm_2_undsay <- lmer(
+reach_prod <- glm(
   production ~
     reach_tot *
-    months +
-    (1|dyad),
-  data = vocab
+    months *
+    background,
+  data = vocab,
+  family = poisson()
 )
-summary(reach_lm_2_undsay)
+summary(reach_prod)
 ```
 
 ```{r reach-lm-2-undsay-plot}
-plot_model(reach_lm_2_undsay, type = "pred", terms = c("reach_tot", "months"))
+plot_model(reach_prod, type = "pred", terms = c("reach_tot", "months", "background"))
 ```
 
 ### Maternal utterances
 
 ```{r utt-lm-2-undsay}
-utt_lm_2_undsay <- lmer(
+utt_prod <- glm(
   production ~
     utt_tot *
-    months +
-    (1|dyad),
-  data = vocab
+    months *
+    background,
+  data = vocab,
+  family = poisson()
 )
-summary(utt_lm_2_undsay)
+summary(utt_prod)
 ```
 
 ```{r utt-lm-2-undsay-plot}
-plot_model(utt_lm_2_undsay, type = "pred", terms = c("utt_tot", "months"))
+plot_model(utt_prod, type = "pred", terms = c("utt_tot", "months", "background"))
 ```
 
 ### Contingent talks
 
 ```{r ct-lm-2-undsay}
-ct_lm_2_undsay <- lmer(
+ct_prod <- glm(
   production ~
     ct_tot *
-    months +
-    (1|dyad),
-  data = vocab
+    months *
+    background,
+  data = vocab,
+  family = poisson()
 )
-summary(ct_lm_2_undsay)
+summary(ct_prod)
 ```
 
 ```{r ct-lm-2-undsay-plot}
-plot_model(ct_lm_2_undsay, type = "pred", terms = c("ct_tot", "months"))
+plot_model(ct_prod, type = "pred", terms = c("ct_tot", "months", "background"))
 ```
 
 \newpage
@@ -835,6 +789,6 @@ plot_model(ct_lm_2_undsay, type = "pred", terms = c("ct_tot", "months"))
 # R session
 
 ```{r session}
-devtools::session_info()
+sessionInfo()
 ```
 
