@@ -602,7 +602,7 @@ ggplot(hg_eff, aes(ho_gv, fit)) +
 
 ```{r all-gest-lm}
 all_gest_lm <- lmer(
-  understand ~
+  comprehension ~
     count_tot *
     months *
     background +
@@ -614,7 +614,7 @@ summary(all_gest_lm)
 
 ```{r all-gest-lm-2}
 all_gest_lm_2 <- lmer(
-  understand ~
+  comprehension ~
     count_tot *
     months +
     (1|dyad),
@@ -631,7 +631,7 @@ plot_model(all_gest_lm_2, type = "pred", terms = c("count_tot", "months"))
 
 ```{r hgp-lm}
 hgp_lm <- lmer(
-  understand ~
+  comprehension ~
     hgp_tot *
     months *
     background +
@@ -643,7 +643,7 @@ summary(hgp_lm)
 
 ```{r hgp-lm-2}
 hgp_lm_2 <- lmer(
-  understand ~
+  comprehension ~
     hgp_tot *
     months +
     (1|dyad),
@@ -660,7 +660,7 @@ plot_model(hgp_lm_2, type = "pred", terms = c("hgp_tot", "months"))
 
 ```{r reach-lm}
 reach_lm <- lmer(
-  understand ~
+  comprehension ~
     reach_tot *
     months *
     background +
@@ -672,7 +672,7 @@ summary(reach_lm)
 
 ```{r reach-lm-2}
 reach_lm_2 <- lmer(
-  understand ~
+  comprehension ~
     reach_tot *
     months +
     (1|dyad),
@@ -689,7 +689,7 @@ plot_model(reach_lm_2, type = "pred", terms = c("reach_tot", "months"))
 
 ```{r utt-lm}
 utt_lm <- lmer(
-  understand ~
+  comprehension ~
     utt_tot *
     months *
     background +
@@ -701,7 +701,7 @@ summary(utt_lm)
 
 ```{r utt-lm-2}
 utt_lm_2 <- lmer(
-  understand ~
+  comprehension ~
     utt_tot *
     months +
     (1|dyad),
@@ -718,7 +718,7 @@ plot_model(utt_lm_2, type = "pred", terms = c("utt_tot", "months"))
 
 ```{r ct-lm}
 ct_lm <- lmer(
-  understand ~
+  comprehension ~
     ct_tot *
     months *
     background +
@@ -730,7 +730,7 @@ summary(ct_lm)
 
 ```{r ct-lm-2}
 ct_lm_2 <- lmer(
-  understand ~
+  comprehension ~
     ct_tot *
     months +
     (1|dyad),
@@ -749,7 +749,7 @@ plot_model(ct_lm_2, type = "pred", terms = c("ct_tot", "months"))
 
 ```{r all-gest-lm-2-undsay}
 all_gest_lm_2_undsay <- lmer(
-  und_say ~
+  production ~
     count_tot *
     months +
     (1|dyad),
@@ -766,7 +766,7 @@ plot_model(all_gest_lm_2_undsay, type = "pred", terms = c("count_tot", "months")
 
 ```{r hgp-lm-2-undsay}
 hgp_lm_2_undsay <- lmer(
-  und_say ~
+  production ~
     hgp_tot *
     months +
     (1|dyad),
@@ -783,7 +783,7 @@ plot_model(hgp_lm_2_undsay, type = "pred", terms = c("hgp_tot", "months"))
 
 ```{r reach-lm-2-undsay}
 reach_lm_2_undsay <- lmer(
-  und_say ~
+  production ~
     reach_tot *
     months +
     (1|dyad),
@@ -800,7 +800,7 @@ plot_model(reach_lm_2_undsay, type = "pred", terms = c("reach_tot", "months"))
 
 ```{r utt-lm-2-undsay}
 utt_lm_2_undsay <- lmer(
-  und_say ~
+  production ~
     utt_tot *
     months +
     (1|dyad),
@@ -817,7 +817,7 @@ plot_model(utt_lm_2_undsay, type = "pred", terms = c("utt_tot", "months"))
 
 ```{r ct-lm-2-undsay}
 ct_lm_2_undsay <- lmer(
-  und_say ~
+  production ~
     ct_tot *
     months +
     (1|dyad),
