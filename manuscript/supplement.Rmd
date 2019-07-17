@@ -528,25 +528,8 @@ reach_point_lm <- glmer(
 summary(reach_point_lm)
 ```
 
-```{r reach-point-check}
-plot(fitted(reach_point_lm), residuals(reach_point_lm))
-qqnorm(residuals(reach_point_lm))
-```
-
 ```{r reach-point-plot}
-reach_eff <- as_tibble(effect("reach:background", reach_point_lm, xlevels = 100))
-
-ggplot(reach_eff, aes(reach, fit)) +
-  geom_ribbon(aes(ymax = upper, ymin = lower), alpha = 0.2) +
-  geom_line() +
-  facet_grid(~ background) +
-  coord_cartesian(ylim = c(0, 100))
-
-ggplot(reach_eff, aes(reach, fit)) +
-  geom_ribbon(aes(ymax = upper, ymin = lower), alpha = 0.2) +
-  geom_line() +
-  facet_grid(~ background) +
-  coord_cartesian(ylim = c(0, 20))
+plot_model(reach_point_lm, type = "pred", terms = c("reach", "background")) + coord_cartesian(ylim = c(0, 20))
 ```
 
 ## HoGs
@@ -575,25 +558,8 @@ hg_point_lm_null <- glmer(
 anova(hg_point_lm_null, hg_point_lm)
 ```
 
-```{r hg-point-check}
-plot(fitted(hg_point_lm), residuals(hg_point_lm))
-qqnorm(residuals(hg_point_lm))
-```
-
 ```{r hg-point-plot}
-hg_eff <- as_tibble(effect("ho_gv:background", hg_point_lm, xlevels = 100))
-
-ggplot(hg_eff, aes(ho_gv, fit)) +
-  geom_ribbon(aes(ymax = upper, ymin = lower), alpha = 0.2) +
-  geom_line() +
-  facet_grid(~ background) +
-  coord_cartesian(ylim = c(0, 100))
-
-ggplot(hg_eff, aes(ho_gv, fit)) +
-  geom_ribbon(aes(ymax = upper, ymin = lower), alpha = 0.2) +
-  geom_line() +
-  facet_grid(~ background) +
-  coord_cartesian(ylim = c(0, 20))
+plot_model(hg_point_lm, type = "pred", terms = c("ho_gv", "background")) + coord_cartesian(ylim = c(0, 75))
 ```
 
 \newpage
