@@ -24,7 +24,10 @@ library(sjPlot)
 
 # Read data
 
-The following chunk reads the data and processes it for analysis.
+These chunks read the data and processes it for analysis.
+
+The following reads `gestures.csv` and `utterances.csv` into `gesture_tot` and `utterances_tot`.
+`gestures_tot` has time series data of infant gestures and maternal Contingent Talks at 10, 11, and 12 months. `utterance_tot` has time series data of maternal utterances at 10, 11, and 12 months. Data is aggregated from the two experimental activities.
 
 ```{r read-data, message=FALSE, cache=FALSE, message=FALSE, warning=FALSE}
 gestures <- read_csv("./data/gestures.csv")
@@ -41,9 +44,11 @@ gestures_tot <- gestures %>%
   ) %>%
   mutate_if(is.character, as.factor) %>%
   mutate(
+    # Needed for GAMs
     back_o = ordered(background, levels = c("English", "Bengali", "Chinese"))
   )
 
+# Needed for GAMs
 contrasts(gestures_tot$back_o) <- "contr.treatment"
 
 utterances <- read_csv("./data/utterances.csv")
@@ -56,32 +61,34 @@ utterances_tot <- utterances %>%
   ungroup() %>%
   mutate_if(is.character, as.factor) %>%
   mutate(
+    # Needed for GAMs
     back_o = ordered(background, levels = c("English", "Bengali", "Chinese"))
   )
 
+# Needed for GAMs
 contrasts(utterances_tot$back_o) <- "contr.treatment"
+```
 
+Here we create individual datasets for HoGs, reaches, pointing, and a dataset with aggreagated gestures count and maternal contingent talks (`all_tot`).
+
+```{r sep-counts}
 hg_tot <- filter(gestures_tot, gesture == "ho_gv")
 reach_tot <- filter(gestures_tot, gesture == "reach")
 point_tot <- filter(gestures_tot, gesture == "point")
+
+# Count = all gestures count, CT is aggregated from all gestures types
 all_tot <- gestures_tot %>%
   group_by(dyad, back_o, months) %>%
   summarise(count = sum(count), ct = sum(ct))
+```
 
+The following code creates datasets for the analysis of pointing as predicted by HoGs, reaches, maternal CTs, and maternal utterances. The datasets are constructed so that the count of pointing at 11 months is matched with the count of gesture/utterances at 10 months, and the pointing at 12 is matched with the count of gesture/utterances at 11 months. Pointing at 10 months is dropped (since there is no data at 9 months).
+
+```{r point-lead}
 hg_point_lead <- gestures_tot %>%
   dplyr::select(-ct) %>%
   spread(gesture, count) %>%
   dplyr::select(-reach) %>%
-  group_by(dyad) %>%
-  mutate(
-    lead_point = lead(point)
-  ) %>%
-  filter(months != 12)
-
-reach_point_lead <- gestures_tot %>%
-  dplyr::select(-ct) %>%
-  spread(gesture, count) %>%
-  dplyr::select(-ho_gv) %>%
   group_by(dyad) %>%
   mutate(
     lead_point = lead(point)
@@ -116,59 +123,34 @@ utter_point_lead <- gestures_tot %>%
     lead_point = lead(count)
   ) %>%
   filter(months != 12)
+```
 
-pointing <- gestures_tot %>%
-  dplyr::select(-ct) %>%
-  spread(gesture, count)
+The following creates a dataset with the infants' vocabulary counts and total counts of all gestures, HoGs + point, reaches, maternal utterances and maternal contingent talks.
 
-gestures <- read_csv("./data/gestures.csv")
-
-gestures_tot_2 <- gestures %>%
-  group_by(dyad, background, months, gesture) %>%
-  summarise(
-    count = sum(count),
-    ct = sum(ct)
-  ) %>%
-  ungroup() %>%
-  mutate(
-    gesture = factor(gesture, levels = c("reach", "point", "ho_gv"))
-  ) %>%
-  mutate_if(is.character, as.factor)
-
-point <- gestures %>%
-  filter(gesture == "point") %>%
-  group_by(dyad, background, months) %>%
-  summarise(
-    count = sum(count)
-  ) %>%
-  ungroup() %>%
-  mutate_if(is.character, as.factor)
-
-utter_point <- left_join(utterances_tot, point) %>%
-  rename(point = count)
-
-utterances_compl <- utterances %>% na.omit()
-utterances_tcompl <- utterances_tot %>% na.omit()
-
-hgp_tot <- gestures_tot_2 %>%
+```{r vocab}
+hgp_tot <- gestures_tot %>%
   filter(gesture != "reach") %>%
   group_by(dyad, background) %>%
   summarise(hgp_tot = sum(count))
 
-reach_tot_2 <- gestures_tot_2 %>%
+reach_tot_2 <- gestures_tot %>%
   filter(gesture == "reach") %>%
   group_by(dyad, background) %>%
   summarise(reach_tot = sum(count))
 
-vocab_gest <- gestures_tot_2 %>%
+vocab_gest <- gestures_tot %>%
   group_by(dyad, background) %>%
   summarise(count_tot = sum(count), ct_tot = sum(ct)) %>%
+  ungroup() %>%
   full_join(y = hgp_tot) %>%
-  full_join(y = reach_tot_2)
+  full_join(y = reach_tot_2) %>%
+  mutate_if(is.factor, as.character)
 
 vocab_utt <- utterances_tot %>%
   group_by(dyad, background) %>%
-  summarise(utt_tot = sum(utterances))
+  summarise(utt_tot = sum(utterances)) %>%
+  ungroup() %>%
+  mutate_if(is.factor, as.character)
 
 vocab <- read_csv("./data/vocab.csv") %>%
   full_join(y = vocab_gest) %>%
@@ -195,7 +177,9 @@ The parameter has been estimated from the data by fitting a generalised linear m
 The following models test cultural group.
 
 ```{r reach-gam}
+# Estimation of theta for the negbin() family
 reach_nb <- glm.nb(count ~ months, data = reach_tot)
+theta <- summary(reach_nb)[["theta"]]
 
 reach_gam <- gam(
   count ~
@@ -205,7 +189,7 @@ reach_gam <- gam(
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = reach_tot,
   method = "ML",
-  family = negbin(0.986)
+  family = negbin(theta)
 )
 summary(reach_gam)
 
@@ -217,7 +201,7 @@ reach_gam_null <- gam(
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = reach_tot,
   method = "ML",
-  family = negbin(0.986)
+  family = negbin(theta)
 )
 
 compareML(reach_gam_null, reach_gam)
@@ -236,7 +220,7 @@ reach_gam_2 <- gam(
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = reach_tot,
   method = "ML",
-  family = negbin(0.986)
+  family = negbin(theta)
 )
 reach_gam_2_null <- gam(
   count ~
@@ -244,7 +228,7 @@ reach_gam_2_null <- gam(
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = reach_tot,
   method = "ML",
-  family = negbin(0.986)
+  family = negbin(theta)
 )
 compareML(reach_gam_2_null, reach_gam_2)
 ```
@@ -259,6 +243,7 @@ The following models test cultural group.
 
 ```{r hg-gam}
 hg_nb <- glm.nb(count ~ months, data = hg_tot)
+theta_2 <- summary(hg_nb)[["theta"]]
 
 hg_gam <- gam(
   count ~
@@ -268,7 +253,7 @@ hg_gam <- gam(
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = hg_tot,
   method = "ML",
-  family = negbin(0.6434)
+  family = negbin(theta_2)
 )
 summary(hg_gam)
 
@@ -280,7 +265,7 @@ hg_gam_null <- gam(
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = hg_tot,
   method = "ML",
-  family = negbin(0.6434)
+  family = negbin(theta_2)
 )
 
 compareML(hg_gam_null, hg_gam)
@@ -299,7 +284,7 @@ hg_gam_2 <- gam(
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = hg_tot,
   method = "ML",
-  family = negbin(0.6434)
+  family = negbin(theta_2)
 )
 hg_gam_2_null <- gam(
   count ~
@@ -307,7 +292,7 @@ hg_gam_2_null <- gam(
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = hg_tot,
   method = "ML",
-  family = negbin(0.6434)
+  family = negbin(theta_2)
 )
 compareML(hg_gam_2_null, hg_gam_2)
 ```
@@ -322,6 +307,7 @@ The following models test cultural group.
 
 ```{r point-gam}
 point_nb <- glm.nb(count ~ months, data = point_tot)
+theta_3 <- summary(point_nb)[["theta"]]
 
 point_gam <- gam(
   count ~
@@ -331,7 +317,7 @@ point_gam <- gam(
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = point_tot,
   method = "ML",
-  family = negbin(0.1946)
+  family = negbin(theta_3)
 )
 summary(point_gam)
 
@@ -343,7 +329,7 @@ point_gam_null <- gam(
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = point_tot,
   method = "ML",
-  family = negbin(0.1946)
+  family = negbin(theta_3)
 )
 
 compareML(point_gam_null, point_gam)
@@ -362,7 +348,7 @@ point_gam_2 <- gam(
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = point_tot,
   method = "ML",
-  family = negbin(0.1946)
+  family = negbin(theta_3)
 )
 point_gam_2_null <- gam(
   count ~
@@ -370,7 +356,7 @@ point_gam_2_null <- gam(
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = point_tot,
   method = "ML",
-  family = negbin(0.1946)
+  family = negbin(theta_3)
 )
 compareML(point_gam_2_null, point_gam_2)
 ```
@@ -447,6 +433,7 @@ The following models test cultural group.
 
 ```{r ct-gam}
 ct_nb <- glm.nb(ct ~ months, data = all_tot)
+theta_4 <- summary(ct_nb)[["theta"]]
 
 ct_gam <- gam(
   ct ~
@@ -456,7 +443,7 @@ ct_gam <- gam(
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = all_tot,
   method = "ML",
-  family = negbin(0.3845)
+  family = negbin(theta_4)
 )
 summary(ct_gam)
 
@@ -468,7 +455,7 @@ ct_gam_null <- gam(
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = all_tot,
   method = "ML",
-  family = negbin(0.3845)
+  family = negbin(theta_4)
 )
 
 compareML(ct_gam_null, ct_gam)
@@ -487,7 +474,7 @@ ct_gam_2 <- gam(
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = all_tot,
   method = "ML",
-  family = negbin(0.3845)
+  family = negbin(theta_4)
 )
 
 ct_gam_2_null <- gam(
@@ -496,7 +483,7 @@ ct_gam_2_null <- gam(
     s(months, dyad, k = 2, bs = "fs", m = 1),
   data = all_tot,
   method = "ML",
-  family = negbin(0.3845)
+  family = negbin(theta_4)
 )
 
 compareML(ct_gam_2_null, ct_gam_2)
