@@ -635,7 +635,7 @@ ct_lm <- glm(
     ct_tot *
     months *
     background,
-  data = vocab,
+  data = filter(vocab, ct_tot < 30),
   family = poisson()
 )
 summary(ct_lm)
@@ -727,7 +727,7 @@ ct_prod <- glm(
     ct_tot *
     months *
     background,
-  data = vocab,
+  data = filter(vocab, ct_tot < 30),
   family = poisson()
 )
 summary(ct_prod)
