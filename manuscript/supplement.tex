@@ -318,20 +318,20 @@ relevant parameter with one in which the parameter is dropped, using
 The full models testing background contain the following terms: a
 parametric term for background (\texttt{back\_o}), a reference smooth
 over sampling period (\texttt{s(months)}, 10-12), a difference smooth
-over sampling period by backround (\texttt{s(months,\ by\ =\ back\_o)}),
-and a random smooth over sampling period by infant
-(\texttt{s(months,\ dyad)}, this corresponds to LME random smooths and
-intercepts). The reference smooth corresponds to the smooth of
-development in English infants, while the difference smooth models the
-difference between the smooth of English infants and those of Bengali
-and Chinese infants.
+over sampling period by background
+(\texttt{s(months,\ by\ =\ back\_o)}), and a random smooth over sampling
+period by infant (\texttt{s(months,\ dyad)}, this corresponds to LME
+random smooths and intercepts). The reference smooth corresponds to the
+smooth of development in English infants, while the difference smooth
+models the difference between the smooth of English infants and those of
+Bengali and Chinese infants.
 
 The full models testing development contain the following terms: a
 smooth over sampling period and a random smooth over sampling period by
 infant (\texttt{s(months,\ dyad)}, this corresponds to LME random
 smooths and intercepts).
 
-The null models for background rop all terms including background
+The null models for background drop all terms including background
 (\texttt{back\_o}) while the null models for development drop the smooth
 over sampling period (\texttt{s(months)}), but keep the random smooths
 (comparison can be done either on the fixed effect structure or the
@@ -1342,12 +1342,19 @@ The following models test time sample.
 
 \newpage
 
-\hypertarget{analysis-1c.-predictors-of-pointing-at-12-months}{%
-\section{Analysis 1c. Predictors of pointing at 12
-months}\label{analysis-1c.-predictors-of-pointing-at-12-months}}
+\hypertarget{analysis-1c.-predictors-of-pointing}{%
+\section{Analysis 1c. Predictors of
+pointing}\label{analysis-1c.-predictors-of-pointing}}
 
-The following GLMMs test the relation between pointing as the outcome
-variable and reaches/HoGs.
+The following GLMMs test the relation between pointing and reaches/HoGs.
+The count of pointing refers to the one produced by the infant in the
+subsequent session: For example, the count of reaches at 10 months is
+matched with the count of points at 11 months, and that of reaches at 11
+months is matched with the count of points at 12 months. This allows us
+to test whether gestures at a certain sampling time predict the
+production of pointing at the next sampling time. Data on pointing at 10
+months is dropped, since there is no data on gestures prior to 10
+months.
 
 \hypertarget{reaches}{%
 \subsection{Reaches}\label{reaches}}
@@ -1355,6 +1362,7 @@ variable and reaches/HoGs.
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{reach_point_lead_nb <-}\StringTok{ }\KeywordTok{glm.nb}\NormalTok{(lead_point }\OperatorTok{~}\StringTok{ }\NormalTok{reach, }\DataTypeTok{data =}\NormalTok{ reach_point_lead)}
+\NormalTok{theta_}\DecValTok{5}\NormalTok{ <-}\StringTok{ }\KeywordTok{summary}\NormalTok{(reach_point_lead_nb)[[}\StringTok{"theta"}\NormalTok{]]}
 
 \NormalTok{reach_point_lm <-}\StringTok{ }\KeywordTok{glmer}\NormalTok{(}
 \NormalTok{  lead_point }\OperatorTok{~}
@@ -1362,7 +1370,7 @@ variable and reaches/HoGs.
 \StringTok{    }\NormalTok{background }\OperatorTok{+}
 \StringTok{    }\NormalTok{(}\DecValTok{1}\OperatorTok{|}\NormalTok{dyad),}
   \DataTypeTok{data =}\NormalTok{ reach_point_lead,}
-  \DataTypeTok{family =} \KeywordTok{negbin}\NormalTok{(}\FloatTok{0.2681}\NormalTok{)}
+  \DataTypeTok{family =} \KeywordTok{negbin}\NormalTok{(theta_}\DecValTok{5}\NormalTok{)}
 \NormalTok{)}
 \KeywordTok{summary}\NormalTok{(reach_point_lm)}
 \end{Highlighting}
@@ -1380,27 +1388,27 @@ variable and reaches/HoGs.
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.5066 -0.4982 -0.3934  0.1437  3.0203 
+## -0.5066 -0.4983 -0.3934  0.1438  3.0193 
 ## 
 ## Random effects:
 ##  Groups Name        Variance Std.Dev.
-##  dyad   (Intercept) 0.1569   0.396   
+##  dyad   (Intercept) 0.157    0.3963  
 ## Number of obs: 112, groups:  dyad, 57
 ## 
 ## Fixed effects:
 ##                         Estimate Std. Error z value Pr(>|z|)
-## (Intercept)              0.72163    0.60141   1.200    0.230
-## reach                    0.06136    0.09716   0.632    0.528
-## backgroundChinese        1.10777    0.72841   1.521    0.128
-## backgroundEnglish        0.84357    0.68166   1.238    0.216
-## reach:backgroundChinese -0.24686    0.16105  -1.533    0.125
-## reach:backgroundEnglish -0.08716    0.13746  -0.634    0.526
+## (Intercept)              0.72148    0.60137   1.200    0.230
+## reach                    0.06137    0.09716   0.632    0.528
+## backgroundChinese        1.10780    0.72839   1.521    0.128
+## backgroundEnglish        0.84351    0.68166   1.237    0.216
+## reach:backgroundChinese -0.24685    0.16104  -1.533    0.125
+## reach:backgroundEnglish -0.08717    0.13746  -0.634    0.526
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr) reach  bckgrC bckgrE rch:bC
 ## reach       -0.724                            
 ## bckgrndChns -0.709  0.550                     
-## bckgrndEngl -0.557  0.506  0.508              
+## bckgrndEngl -0.558  0.506  0.508              
 ## rch:bckgrnC  0.453 -0.610 -0.710 -0.298       
 ## rch:bckgrnE  0.449 -0.681 -0.366 -0.599  0.412
 \end{verbatim}
@@ -1419,6 +1427,7 @@ variable and reaches/HoGs.
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{hg_point_lead_nb <-}\StringTok{ }\KeywordTok{glm.nb}\NormalTok{(lead_point }\OperatorTok{~}\StringTok{ }\NormalTok{ho_gv, }\DataTypeTok{data =} \KeywordTok{filter}\NormalTok{(hg_point_lead, ho_gv }\OperatorTok{<}\StringTok{ }\DecValTok{20}\NormalTok{))}
+\NormalTok{theta_}\DecValTok{6}\NormalTok{ <-}\StringTok{ }\KeywordTok{summary}\NormalTok{(reach_point_lead_nb)[[}\StringTok{"theta"}\NormalTok{]]}
 
 \NormalTok{hg_point_lm <-}\StringTok{ }\KeywordTok{glmer}\NormalTok{(}
 \NormalTok{  lead_point }\OperatorTok{~}
@@ -1426,7 +1435,7 @@ variable and reaches/HoGs.
 \StringTok{    }\NormalTok{background }\OperatorTok{+}
 \StringTok{    }\NormalTok{(}\DecValTok{1}\OperatorTok{|}\NormalTok{dyad),}
   \DataTypeTok{data =} \KeywordTok{filter}\NormalTok{(hg_point_lead, ho_gv }\OperatorTok{<}\StringTok{ }\DecValTok{20}\NormalTok{),}
-  \DataTypeTok{family =} \KeywordTok{negbin}\NormalTok{(}\FloatTok{0.2606}\NormalTok{)}
+  \DataTypeTok{family =} \KeywordTok{negbin}\NormalTok{(theta_}\DecValTok{6}\NormalTok{)}
 \NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
@@ -1444,71 +1453,42 @@ variable and reaches/HoGs.
 \begin{verbatim}
 ## Generalized linear mixed model fit by maximum likelihood (Laplace
 ##   Approximation) [glmerMod]
-##  Family: Negative Binomial(0.261)  ( log )
+##  Family: Negative Binomial(0.268)  ( log )
 ## Formula: lead_point ~ ho_gv * background + (1 | dyad)
 ##    Data: filter(hg_point_lead, ho_gv < 20)
 ## 
 ##      AIC      BIC   logLik deviance df.resid 
-##    503.8    525.3   -243.9    487.8      101 
+##    503.6    525.1   -243.8    487.6      101 
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.5080 -0.4942 -0.3979  0.1241  6.0969 
+## -0.5152 -0.5009 -0.4033  0.1257  6.1781 
 ## 
 ## Random effects:
-##  Groups Name        Variance Std.Dev. 
-##  dyad   (Intercept) 1.41e-10 1.187e-05
+##  Groups Name        Variance  Std.Dev. 
+##  dyad   (Intercept) 1.407e-10 1.186e-05
 ## Number of obs: 109, groups:  dyad, 57
 ## 
 ## Fixed effects:
 ##                         Estimate Std. Error z value Pr(>|z|)   
-## (Intercept)              1.37529    0.46393   2.964  0.00303 **
-## ho_gv                   -0.10718    0.08031  -1.335  0.18200   
-## backgroundChinese        0.11400    0.68904   0.165  0.86859   
-## backgroundEnglish       -0.22613    0.62893  -0.360  0.71919   
-## ho_gv:backgroundChinese  0.12680    0.13875   0.914  0.36081   
-## ho_gv:backgroundEnglish  0.31880    0.15566   2.048  0.04056 * 
+## (Intercept)              1.37535    0.45787   3.004  0.00267 **
+## ho_gv                   -0.10720    0.07934  -1.351  0.17665   
+## backgroundChinese        0.11398    0.67981   0.168  0.86685   
+## backgroundEnglish       -0.22597    0.62061  -0.364  0.71577   
+## ho_gv:backgroundChinese  0.12681    0.13692   0.926  0.35435   
+## ho_gv:backgroundEnglish  0.31874    0.15354   2.076  0.03790 * 
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr) ho_gv  bckgrC bckgrE h_gv:C
 ## ho_gv       -0.681                            
-## bckgrndChns -0.673  0.459                     
+## bckgrndChns -0.674  0.459                     
 ## bckgrndEngl -0.738  0.502  0.497              
-## h_gv:bckgrC  0.394 -0.579 -0.714 -0.291       
-## h_gv:bckgrE  0.351 -0.516 -0.237 -0.621  0.299
+## h_gv:bckgrC  0.395 -0.579 -0.714 -0.291       
+## h_gv:bckgrE  0.352 -0.517 -0.237 -0.621  0.299
 ## convergence code: 0
 ## boundary (singular) fit: see ?isSingular
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{hg_point_lm_null <-}\StringTok{ }\KeywordTok{glmer}\NormalTok{(}
-\NormalTok{  lead_point }\OperatorTok{~}
-\StringTok{    }\NormalTok{ho_gv }\OperatorTok{+}
-\StringTok{    }\NormalTok{background }\OperatorTok{+}
-\StringTok{    }\NormalTok{(}\DecValTok{1}\OperatorTok{|}\NormalTok{dyad),}
-  \DataTypeTok{data =} \KeywordTok{filter}\NormalTok{(hg_point_lead, ho_gv }\OperatorTok{<}\StringTok{ }\DecValTok{20}\NormalTok{),}
-  \DataTypeTok{family =} \KeywordTok{negbin}\NormalTok{(}\FloatTok{0.2606}\NormalTok{)}
-\NormalTok{)}
-\KeywordTok{anova}\NormalTok{(hg_point_lm_null, hg_point_lm)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## Data: filter(hg_point_lead, ho_gv < 20)
-## Models:
-## hg_point_lm_null: lead_point ~ ho_gv + background + (1 | dyad)
-## hg_point_lm: lead_point ~ ho_gv * background + (1 | dyad)
-##                  Df    AIC    BIC  logLik deviance  Chisq Chi Df
-## hg_point_lm_null  6 504.69 520.84 -246.35   492.69              
-## hg_point_lm       8 503.79 525.32 -243.89   487.79 4.9055      2
-##                  Pr(>Chisq)  
-## hg_point_lm_null             
-## hg_point_lm         0.08606 .
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
 
 \begin{Shaded}

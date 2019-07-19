@@ -1,7 +1,7 @@
 ---
 title: "Statistical analysis"
-output: 
-  pdf_document: 
+output:
+  pdf_document:
     highlight: tango
     keep_tex: yes
     latex_engine: xelatex
@@ -175,11 +175,11 @@ The parameter has been estimated from the data by fitting a generalised linear m
 
 Cultural background and development (within the 10-12 months sampling period) were tested separately with two series of models for each gesture (HoGs, reaches, pointing) and maternal scores (maternal utterances and maternal contingent talks). To test the significance of background and development we compared a full model including the relevant parameter with one in which the parameter is dropped, using `itsadug::compareML()`.
 
-The full models testing background contain the following terms: a parametric term for background (`back_o`), a reference smooth over sampling period (`s(months)`, 10-12), a difference smooth over sampling period by backround (`s(months, by = back_o)`), and a random smooth over sampling period by infant (`s(months, dyad)`, this corresponds to LME random smooths and intercepts). The reference smooth corresponds to the smooth of development in English infants, while the difference smooth models the difference between the smooth of English infants and those of Bengali and Chinese infants.
+The full models testing background contain the following terms: a parametric term for background (`back_o`), a reference smooth over sampling period (`s(months)`, 10-12), a difference smooth over sampling period by background (`s(months, by = back_o)`), and a random smooth over sampling period by infant (`s(months, dyad)`, this corresponds to LME random smooths and intercepts). The reference smooth corresponds to the smooth of development in English infants, while the difference smooth models the difference between the smooth of English infants and those of Bengali and Chinese infants.
 
 The full models testing development contain the following terms: a smooth over sampling period and a random smooth over sampling period by infant (`s(months, dyad)`, this corresponds to LME random smooths and intercepts).
 
-The null models for background rop all terms including background (`back_o`) while the null models for development drop the smooth over sampling period (`s(months)`), but keep the random smooths (comparison can be done either on the fixed effect structure or the random effects structure at a time).
+The null models for background drop all terms including background (`back_o`) while the null models for development drop the smooth over sampling period (`s(months)`), but keep the random smooths (comparison can be done either on the fixed effect structure or the random effects structure at a time).
 
 The warnings about repeated 1-d smooths do not indicate problems with the models, but they only inform the user about multiple smooths over the same variable (which are needed).
 
@@ -589,14 +589,15 @@ plot_smooths(ct_gam_2, months, series_length = 10, transform = exp) +
 
 \newpage
 
-# Analysis 1c. Predictors of pointing at 12 months
+# Analysis 1c. Predictors of pointing
 
-The following GLMMs test the relation between pointing as the outcome variable and reaches/HoGs.
+The following GLMMs test the relation between pointing and reaches/HoGs. The count of pointing refers to the one produced by the infant in the subsequent session: For example, the count of reaches at 10 months is matched with the count of points at 11 months, and that of reaches at 11 months is matched with the count of points at 12 months. This allows us to test whether gestures at a certain sampling time predict the production of pointing at the next sampling time. Data on pointing at 10 months is dropped, since there is no data on gestures prior to 10 months.
 
 ## Reaches
 
 ```{r reach-point-lm}
 reach_point_lead_nb <- glm.nb(lead_point ~ reach, data = reach_point_lead)
+theta_5 <- summary(reach_point_lead_nb)[["theta"]]
 
 reach_point_lm <- glmer(
   lead_point ~
@@ -604,7 +605,7 @@ reach_point_lm <- glmer(
     background +
     (1|dyad),
   data = reach_point_lead,
-  family = negbin(0.2681)
+  family = negbin(theta_5)
 )
 summary(reach_point_lm)
 ```
@@ -617,6 +618,7 @@ plot_model(reach_point_lm, type = "pred", terms = c("reach", "background")) + co
 
 ```{r hg-point-lm}
 hg_point_lead_nb <- glm.nb(lead_point ~ ho_gv, data = filter(hg_point_lead, ho_gv < 20))
+theta_6 <- summary(reach_point_lead_nb)[["theta"]]
 
 hg_point_lm <- glmer(
   lead_point ~
@@ -624,19 +626,9 @@ hg_point_lm <- glmer(
     background +
     (1|dyad),
   data = filter(hg_point_lead, ho_gv < 20),
-  family = negbin(0.2606)
+  family = negbin(theta_6)
 )
 summary(hg_point_lm)
-
-hg_point_lm_null <- glmer(
-  lead_point ~
-    ho_gv +
-    background +
-    (1|dyad),
-  data = filter(hg_point_lead, ho_gv < 20),
-  family = negbin(0.2606)
-)
-anova(hg_point_lm_null, hg_point_lm)
 ```
 
 ```{r hg-point-plot}
@@ -838,4 +830,3 @@ plot_model(ct_prod, type = "pred", terms = c("ct_tot", "months", "background"))
 ```{r session}
 sessionInfo()
 ```
-
