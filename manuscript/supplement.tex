@@ -307,6 +307,40 @@ parameter has been estimated from the data by fitting a generalised
 linear model with the negative binomial distribution using
 \texttt{MASS::glm.nb}.
 
+Cultural background and development (within the 10-12 months sampling
+period) were tested separately with two series of models for each
+gesture (HoGs, reaches, pointing) and maternal scores (maternal
+utterances and maternal contingent talks). To test the significance of
+background and development we compared a full model including the
+relevant parameter with one in which the parameter is dropped, using
+\texttt{itsadug::compareML()}.
+
+The full models testing background contain the following terms: a
+parametric term for background (\texttt{back\_o}), a reference smooth
+over sampling period (\texttt{s(months)}, 10-12), a difference smooth
+over sampling period by backround (\texttt{s(months,\ by\ =\ back\_o)}),
+and a random smooth over sampling period by infant
+(\texttt{s(months,\ dyad)}, this corresponds to LME random smooths and
+intercepts). The reference smooth corresponds to the smooth of
+development in English infants, while the difference smooth models the
+difference between the smooth of English infants and those of Bengali
+and Chinese infants.
+
+The full models testing development contain the following terms: a
+smooth over sampling period and a random smooth over sampling period by
+infant (\texttt{s(months,\ dyad)}, this corresponds to LME random
+smooths and intercepts).
+
+The null models for background rop all terms including background
+(\texttt{back\_o}) while the null models for development drop the smooth
+over sampling period (\texttt{s(months)}), but keep the random smooths
+(comparison can be done either on the fixed effect structure or the
+random effects structure at a time).
+
+The warnings about repeated 1-d smooths do not indicate problems with
+the models, but they only inform the user about multiple smooths over
+the same variable (which are needed).
+
 \hypertarget{reaches-development}{%
 \subsection{Reaches development}\label{reaches-development}}
 
@@ -323,7 +357,9 @@ linear model with the negative binomial distribution using
 
 \includegraphics{supplement_files/figure-latex/reaches-1.pdf}
 
-The following models test cultural group.
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+The following models test cultural group for infant reaches.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -333,9 +369,13 @@ The following models test cultural group.
 
 \NormalTok{reach_gam <-}\StringTok{ }\KeywordTok{gam}\NormalTok{(}
 \NormalTok{  count }\OperatorTok{~}
+\StringTok{    }\CommentTok{# parametric term}
 \StringTok{    }\NormalTok{back_o }\OperatorTok{+}
+\StringTok{    }\CommentTok{# reference smooth}
 \StringTok{    }\KeywordTok{s}\NormalTok{(months, }\DataTypeTok{k =} \DecValTok{3}\NormalTok{) }\OperatorTok{+}
+\StringTok{    }\CommentTok{# difference smoth}
 \StringTok{    }\KeywordTok{s}\NormalTok{(months, }\DataTypeTok{k =} \DecValTok{3}\NormalTok{, }\DataTypeTok{by =}\NormalTok{ back_o) }\OperatorTok{+}
+\StringTok{    }\CommentTok{# random smooths (random effect)}
 \StringTok{    }\KeywordTok{s}\NormalTok{(months, dyad, }\DataTypeTok{k =} \DecValTok{2}\NormalTok{, }\DataTypeTok{bs =} \StringTok{"fs"}\NormalTok{, }\DataTypeTok{m =} \DecValTok{1}\NormalTok{),}
   \DataTypeTok{data =}\NormalTok{ reach_tot,}
   \DataTypeTok{method =} \StringTok{"ML"}\NormalTok{,}
@@ -433,13 +473,16 @@ The following models test cultural group.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{plot_smooths}\NormalTok{(reach_gam, months, }\DataTypeTok{facet_terms =}\NormalTok{ back_o, }\DataTypeTok{series_length =} \DecValTok{25}\NormalTok{, }\DataTypeTok{transform =}\NormalTok{ exp)}
+\KeywordTok{plot_smooths}\NormalTok{(reach_gam, months, }\DataTypeTok{facet_terms =}\NormalTok{ back_o, }\DataTypeTok{series_length =} \DecValTok{25}\NormalTok{, }\DataTypeTok{transform =}\NormalTok{ exp) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Months"}\NormalTok{, }\DataTypeTok{y =} \StringTok{"Count of reaches"}\NormalTok{, }\DataTypeTok{title =} \StringTok{"Predicted development of reaches by background"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \includegraphics{supplement_files/figure-latex/reach-gam-plot-1.pdf}
 
-The following models test time sample.
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+The following models test the development of infant reaches.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -494,7 +537,8 @@ The following models test time sample.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{plot_smooths}\NormalTok{(reach_gam_}\DecValTok{2}\NormalTok{, months, }\DataTypeTok{series_length =} \DecValTok{25}\NormalTok{, }\DataTypeTok{transform =}\NormalTok{ exp)}
+\KeywordTok{plot_smooths}\NormalTok{(reach_gam_}\DecValTok{2}\NormalTok{, months, }\DataTypeTok{series_length =} \DecValTok{25}\NormalTok{, }\DataTypeTok{transform =}\NormalTok{ exp) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Months"}\NormalTok{, }\DataTypeTok{y =} \StringTok{"Count of reaches"}\NormalTok{, }\DataTypeTok{title =} \StringTok{"Predicted development of reaches"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -516,7 +560,9 @@ The following models test time sample.
 
 \includegraphics{supplement_files/figure-latex/hog-1.pdf}
 
-The following models test cultural group.
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+The following models test cultural group differences for infant HoGs.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -625,13 +671,16 @@ The following models test cultural group.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{plot_smooths}\NormalTok{(hg_gam, months, }\DataTypeTok{facet_terms =}\NormalTok{ back_o, }\DataTypeTok{series_length =} \DecValTok{25}\NormalTok{, }\DataTypeTok{transform =}\NormalTok{ exp)}
+\KeywordTok{plot_smooths}\NormalTok{(hg_gam, months, }\DataTypeTok{facet_terms =}\NormalTok{ back_o, }\DataTypeTok{series_length =} \DecValTok{25}\NormalTok{, }\DataTypeTok{transform =}\NormalTok{ exp) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Months"}\NormalTok{, }\DataTypeTok{y =} \StringTok{"Count of HoGs"}\NormalTok{, }\DataTypeTok{title =} \StringTok{"Predicted development of HoGs by background"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \includegraphics{supplement_files/figure-latex/hg-gam-plot-1.pdf}
 
-The following models test time sample.
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+The following models test development of infant HoGs.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -682,7 +731,8 @@ The following models test time sample.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{plot_smooths}\NormalTok{(hg_gam_}\DecValTok{2}\NormalTok{, months, }\DataTypeTok{series_length =} \DecValTok{25}\NormalTok{, }\DataTypeTok{transform =}\NormalTok{ exp)}
+\KeywordTok{plot_smooths}\NormalTok{(hg_gam_}\DecValTok{2}\NormalTok{, months, }\DataTypeTok{series_length =} \DecValTok{25}\NormalTok{, }\DataTypeTok{transform =}\NormalTok{ exp) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Months"}\NormalTok{, }\DataTypeTok{y =} \StringTok{"Count of HoGs"}\NormalTok{, }\DataTypeTok{title =} \StringTok{"Predicted development of HoGs"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -704,7 +754,9 @@ The following models test time sample.
 
 \includegraphics{supplement_files/figure-latex/points-1.pdf}
 
-The following models test cultural group.
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+The following models test cultural group differences in infant pointing.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -813,13 +865,16 @@ The following models test cultural group.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{plot_smooths}\NormalTok{(point_gam, months, }\DataTypeTok{facet_terms =}\NormalTok{ back_o, }\DataTypeTok{series_length =} \DecValTok{25}\NormalTok{, }\DataTypeTok{transform =}\NormalTok{ exp)}
+\KeywordTok{plot_smooths}\NormalTok{(point_gam, months, }\DataTypeTok{facet_terms =}\NormalTok{ back_o, }\DataTypeTok{series_length =} \DecValTok{25}\NormalTok{, }\DataTypeTok{transform =}\NormalTok{ exp) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Months"}\NormalTok{, }\DataTypeTok{y =} \StringTok{"Count of points"}\NormalTok{, }\DataTypeTok{title =} \StringTok{"Predicted development of points by background"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \includegraphics{supplement_files/figure-latex/point-gam-plot-1.pdf}
 
-The following models test time sample.
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+The following models test development of infant pointing.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -874,7 +929,8 @@ The following models test time sample.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{plot_smooths}\NormalTok{(point_gam_}\DecValTok{2}\NormalTok{, months, }\DataTypeTok{series_length =} \DecValTok{25}\NormalTok{, }\DataTypeTok{transform =}\NormalTok{ exp)}
+\KeywordTok{plot_smooths}\NormalTok{(point_gam_}\DecValTok{2}\NormalTok{, months, }\DataTypeTok{series_length =} \DecValTok{25}\NormalTok{, }\DataTypeTok{transform =}\NormalTok{ exp) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Months"}\NormalTok{, }\DataTypeTok{y =} \StringTok{"Count of points"}\NormalTok{, }\DataTypeTok{title =} \StringTok{"Predicted development of points"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -908,6 +964,8 @@ development}\label{maternal-utterances-development}}
 \end{Shaded}
 
 \includegraphics{supplement_files/figure-latex/utterances-1.pdf}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 The following models test cultural group.
 
@@ -1013,11 +1071,14 @@ The following models test cultural group.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{plot_smooths}\NormalTok{(utter_gam, months, }\DataTypeTok{facet_terms =}\NormalTok{ back_o, }\DataTypeTok{series_length =} \DecValTok{10}\NormalTok{)}
+\KeywordTok{plot_smooths}\NormalTok{(utter_gam, months, }\DataTypeTok{facet_terms =}\NormalTok{ back_o, }\DataTypeTok{series_length =} \DecValTok{10}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Months"}\NormalTok{, }\DataTypeTok{y =} \StringTok{"Count of utterances"}\NormalTok{, }\DataTypeTok{title =} \StringTok{"Predicted development of utterances by background"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \includegraphics{supplement_files/figure-latex/utter-gam-plot-1.pdf}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 The following models test time sample.
 
@@ -1071,6 +1132,15 @@ The following models test time sample.
 ## Warning in compareML(utter_gam_2_null, utter_gam_2): Only small difference in ML...
 \end{verbatim}
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot_smooths}\NormalTok{(utter_gam_}\DecValTok{2}\NormalTok{, months, }\DataTypeTok{series_length =} \DecValTok{10}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Months"}\NormalTok{, }\DataTypeTok{y =} \StringTok{"Count of utterances"}\NormalTok{, }\DataTypeTok{title =} \StringTok{"Predicted development of utterances"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{supplement_files/figure-latex/utter-gam-2-plot-1.pdf}
+
 \hypertarget{contingent-talks-development}{%
 \subsection{Contingent talks
 development}\label{contingent-talks-development}}
@@ -1087,6 +1157,8 @@ development}\label{contingent-talks-development}}
 \end{Shaded}
 
 \includegraphics{supplement_files/figure-latex/ct-1.pdf}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 The following models test cultural group.
 
@@ -1196,11 +1268,14 @@ The following models test cultural group.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{plot_smooths}\NormalTok{(ct_gam, months, }\DataTypeTok{facet_terms =}\NormalTok{ back_o, }\DataTypeTok{series_length =} \DecValTok{10}\NormalTok{, }\DataTypeTok{transform =}\NormalTok{ exp)}
+\KeywordTok{plot_smooths}\NormalTok{(ct_gam, months, }\DataTypeTok{facet_terms =}\NormalTok{ back_o, }\DataTypeTok{series_length =} \DecValTok{10}\NormalTok{, }\DataTypeTok{transform =}\NormalTok{ exp) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Months"}\NormalTok{, }\DataTypeTok{y =} \StringTok{"Count of CTs"}\NormalTok{, }\DataTypeTok{title =} \StringTok{"Predicted development of CTs by background"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \includegraphics{supplement_files/figure-latex/ct-gam-plot-1.pdf}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 The following models test time sample.
 
@@ -1258,7 +1333,8 @@ The following models test time sample.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{plot_smooths}\NormalTok{(ct_gam_}\DecValTok{2}\NormalTok{, months, }\DataTypeTok{series_length =} \DecValTok{10}\NormalTok{, }\DataTypeTok{transform =}\NormalTok{ exp)}
+\KeywordTok{plot_smooths}\NormalTok{(ct_gam_}\DecValTok{2}\NormalTok{, months, }\DataTypeTok{series_length =} \DecValTok{10}\NormalTok{, }\DataTypeTok{transform =}\NormalTok{ exp) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Months"}\NormalTok{, }\DataTypeTok{y =} \StringTok{"Count of CTs"}\NormalTok{, }\DataTypeTok{title =} \StringTok{"Predicted development of CTs"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
