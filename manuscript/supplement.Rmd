@@ -1,8 +1,9 @@
 ---
-title: "Supplement"
+title: "Statistical analysis"
 output: 
   pdf_document: 
     highlight: tango
+    keep_tex: yes
     latex_engine: xelatex
     number_sections: yes
 mainfont: Lato
@@ -71,7 +72,7 @@ contrasts(utterances_tot$back_o) <- "contr.treatment"
 
 Here we create individual datasets for HoGs, reaches, pointing, and a dataset with aggreagated gestures count and maternal contingent talks (`all_tot`).
 
-```{r sep-counts}
+```{r sep-counts, message=FALSE, cache=FALSE, message=FALSE, warning=FALSE}
 hg_tot <- filter(gestures_tot, gesture == "ho_gv")
 reach_tot <- filter(gestures_tot, gesture == "reach")
 point_tot <- filter(gestures_tot, gesture == "point")
@@ -84,7 +85,7 @@ all_tot <- gestures_tot %>%
 
 The following code creates datasets for the analysis of pointing as predicted by HoGs, reaches, maternal CTs, and maternal utterances. The datasets are constructed so that the count of pointing at 11 months is matched with the count of gesture/utterances at 10 months, and the pointing at 12 is matched with the count of gesture/utterances at 11 months. Pointing at 10 months is dropped (since there is no data at 9 months).
 
-```{r point-lead}
+```{r point-lead, message=FALSE, cache=FALSE, message=FALSE, warning=FALSE}
 hg_point_lead <- gestures_tot %>%
   dplyr::select(-ct) %>%
   spread(gesture, count) %>%
@@ -127,7 +128,7 @@ utter_point_lead <- gestures_tot %>%
 
 The following creates a dataset with the infants' vocabulary counts and total counts of all gestures, HoGs + point, reaches, maternal utterances and maternal contingent talks.
 
-```{r vocab}
+```{r vocab, message=FALSE, cache=FALSE, message=FALSE, warning=FALSE}
 hgp_tot <- gestures_tot %>%
   filter(gesture != "reach") %>%
   group_by(dyad, background) %>%
@@ -173,6 +174,15 @@ The negative binomial distribution requires the specification of the theta param
 The parameter has been estimated from the data by fitting a generalised linear model with the negative binomial distribution using `MASS::glm.nb`.
 
 ## Reaches development
+
+```{r reaches, warning=FALSE}
+reach_tot %>%
+  ggplot(aes(count)) + geom_density() + geom_rug(alpha = 0.1) +
+  labs(
+    title = "Distribution of the count of reaches",
+    x = "Count of infant reaches"
+  )
+```
 
 The following models test cultural group.
 
@@ -239,6 +249,15 @@ plot_smooths(reach_gam_2, months, series_length = 25, transform = exp)
 
 ## HGs development
 
+```{r hog, warning=FALSE}
+hg_tot %>%
+  ggplot(aes(count)) + geom_density() + geom_rug(alpha = 0.1) +
+  labs(
+    title = "Distribution of the count of HoGs",
+    x = "Count of infant HoGs"
+  )
+```
+
 The following models test cultural group.
 
 ```{r hg-gam}
@@ -302,6 +321,15 @@ plot_smooths(hg_gam_2, months, series_length = 25, transform = exp)
 ```
 
 ## Points development
+
+```{r points, warning=FALSE}
+point_tot %>%
+  ggplot(aes(count)) + geom_density() + geom_rug(alpha = 0.1) +
+  labs(
+    title = "Distribution of the count of points",
+    x = "Count of infant points"
+  )
+```
 
 The following models test cultural group.
 
@@ -374,6 +402,15 @@ For maternal contingent talks instead we used again the negative binomial distri
 
 ## Maternal utterances development
 
+```{r utterances, warning=FALSE}
+utterances_tot %>%
+  ggplot(aes(utterances)) + geom_density() + geom_rug(alpha = 0.1) +
+  labs(
+    title = "Distribution of the count of utterances",
+    x = "Count of maternal utterances"
+  )
+```
+
 The following models test cultural group.
 
 ```{r utter-gam}
@@ -428,6 +465,15 @@ compareML(utter_gam_2_null, utter_gam_2)
 ```
 
 ## Contingent talks development
+
+```{r ct, warning=FALSE}
+all_tot %>%
+  ggplot(aes(ct)) + geom_density() + geom_rug(alpha = 0.1) +
+  labs(
+    title = "Distribution of the count of CTs",
+    x = "Count of maternal CTs"
+  )
+```
 
 The following models test cultural group.
 
