@@ -611,7 +611,7 @@ summary(reach_point_lm)
 ```
 
 ```{r reach-point-plot}
-plot_model(reach_point_lm, type = "pred", terms = c("reach", "background")) + coord_cartesian(ylim = c(0, 20))
+plot_model(reach_point_lm, type = "pred", terms = c("reach", "background"))
 ```
 
 ## HoGs
@@ -632,7 +632,7 @@ summary(hg_point_lm)
 ```
 
 ```{r hg-point-plot}
-plot_model(hg_point_lm, type = "pred", terms = c("ho_gv", "background")) + coord_cartesian(ylim = c(0, 75))
+plot_model(hg_point_lm, type = "pred", terms = c("ho_gv", "background"))
 ```
 
 \newpage
