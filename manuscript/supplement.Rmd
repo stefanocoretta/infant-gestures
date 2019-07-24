@@ -825,6 +825,90 @@ plot_model(ct_prod, type = "pred", terms = c("ct_tot", "months", "background"))
 
 \newpage
 
+# Number of observations
+
+The following sections report the number of observations (excluding NAs) used in the models above.
+
+## Analysis 1a
+
+### Reaches
+
+```{r reaches-obs}
+reach_tot %>%
+  group_by(back_o, months) %>%
+  na.omit() %>%
+  summarise(n = n())
+```
+
+### HoGs
+
+```{r hg-obs}
+hg_tot %>%
+  group_by(back_o, months) %>%
+  na.omit() %>%
+  summarise(n = n())
+```
+
+### Points
+
+```{r point-obs}
+point_tot %>%
+  group_by(back_o, months) %>%
+  na.omit() %>%
+  summarise(n = n())
+```
+
+## Analysis 1c
+
+### Maternal utterances
+
+```{r utter-obs}
+utterances_tot %>%
+  group_by(back_o, months) %>%
+  na.omit() %>%
+  summarise(n = n())
+```
+
+### Maternal CTs
+
+```{r ct-obs}
+all_tot %>%
+  group_by(back_o, months) %>%
+  na.omit() %>%
+  summarise(n = n())
+```
+
+## Analysis 1c
+
+### Reaches
+
+```{r reachpoint-obs}
+reach_point_lead %>%
+  group_by(back_o) %>%
+  na.omit() %>%
+  summarise(n = n())
+```
+
+### HoGs
+
+```{r hgpoint-obs}
+hg_point_lead %>%
+  group_by(back_o) %>%
+  na.omit() %>%
+  summarise(n = n())
+```
+
+## Analysis 2
+
+The counts apply both to the comprehension and production analyses.
+
+```{r vocab-obs}
+vocab %>%
+  group_by(background) %>%
+  na.omit() %>%
+  summarise(n = n())
+```
+
 # R session
 
 ```{r session}

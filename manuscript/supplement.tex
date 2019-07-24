@@ -2265,6 +2265,226 @@ months}\label{production-at-12-and-18-months}}
 
 \newpage
 
+\hypertarget{number-of-observations}{%
+\section{Number of observations}\label{number-of-observations}}
+
+The following sections report the number of observations (excluding NAs)
+used in the models above.
+
+\hypertarget{analysis-1a}{%
+\subsection{Analysis 1a}\label{analysis-1a}}
+
+\hypertarget{reaches-3}{%
+\subsubsection{Reaches}\label{reaches-3}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reach_tot }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(back_o, months) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{na.omit}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{n =} \KeywordTok{n}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 9 x 3
+## # Groups:   back_o [3]
+##   back_o  months     n
+##   <ord>    <dbl> <int>
+## 1 English     10    19
+## 2 English     11    19
+## 3 English     12    18
+## 4 Bengali     10    20
+## 5 Bengali     11    19
+## 6 Bengali     12    19
+## 7 Chinese     10    18
+## 8 Chinese     11    19
+## 9 Chinese     12    20
+\end{verbatim}
+
+\hypertarget{hogs-1}{%
+\subsubsection{HoGs}\label{hogs-1}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hg_tot }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(back_o, months) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{na.omit}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{n =} \KeywordTok{n}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 9 x 3
+## # Groups:   back_o [3]
+##   back_o  months     n
+##   <ord>    <dbl> <int>
+## 1 English     10    19
+## 2 English     11    19
+## 3 English     12    18
+## 4 Bengali     10    20
+## 5 Bengali     11    19
+## 6 Bengali     12    19
+## 7 Chinese     10    18
+## 8 Chinese     11    19
+## 9 Chinese     12    20
+\end{verbatim}
+
+\hypertarget{points}{%
+\subsubsection{Points}\label{points}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{point_tot }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(back_o, months) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{na.omit}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{n =} \KeywordTok{n}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 9 x 3
+## # Groups:   back_o [3]
+##   back_o  months     n
+##   <ord>    <dbl> <int>
+## 1 English     10    19
+## 2 English     11    19
+## 3 English     12    18
+## 4 Bengali     10    20
+## 5 Bengali     11    19
+## 6 Bengali     12    19
+## 7 Chinese     10    18
+## 8 Chinese     11    19
+## 9 Chinese     12    20
+\end{verbatim}
+
+\hypertarget{analysis-1c}{%
+\subsection{Analysis 1c}\label{analysis-1c}}
+
+\hypertarget{maternal-utterances-2}{%
+\subsubsection{Maternal utterances}\label{maternal-utterances-2}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{utterances_tot }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(back_o, months) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{na.omit}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{n =} \KeywordTok{n}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 9 x 3
+## # Groups:   back_o [3]
+##   back_o  months     n
+##   <ord>    <dbl> <int>
+## 1 English     10    17
+## 2 English     11    18
+## 3 English     12    16
+## 4 Bengali     10    20
+## 5 Bengali     11    19
+## 6 Bengali     12    18
+## 7 Chinese     10    19
+## 8 Chinese     11    20
+## 9 Chinese     12    20
+\end{verbatim}
+
+\hypertarget{maternal-cts}{%
+\subsubsection{Maternal CTs}\label{maternal-cts}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{all_tot }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(back_o, months) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{na.omit}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{n =} \KeywordTok{n}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 9 x 3
+## # Groups:   back_o [3]
+##   back_o  months     n
+##   <ord>    <dbl> <int>
+## 1 English     10    19
+## 2 English     11    19
+## 3 English     12    18
+## 4 Bengali     10    20
+## 5 Bengali     11    19
+## 6 Bengali     12    19
+## 7 Chinese     10    18
+## 8 Chinese     11    19
+## 9 Chinese     12    20
+\end{verbatim}
+
+\hypertarget{analysis-1c-1}{%
+\subsection{Analysis 1c}\label{analysis-1c-1}}
+
+\hypertarget{reaches-4}{%
+\subsubsection{Reaches}\label{reaches-4}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reach_point_lead }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(back_o) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{na.omit}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{n =} \KeywordTok{n}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 3 x 2
+##   back_o      n
+##   <ord>   <int>
+## 1 English    37
+## 2 Bengali    38
+## 3 Chinese    37
+\end{verbatim}
+
+\hypertarget{hogs-2}{%
+\subsubsection{HoGs}\label{hogs-2}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hg_point_lead }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(back_o) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{na.omit}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{n =} \KeywordTok{n}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 3 x 2
+##   back_o      n
+##   <ord>   <int>
+## 1 English    37
+## 2 Bengali    38
+## 3 Chinese    37
+\end{verbatim}
+
+\hypertarget{analysis-2}{%
+\subsection{Analysis 2}\label{analysis-2}}
+
+The counts apply both to the comprehension and production analyses.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{vocab }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(background) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{na.omit}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{n =} \KeywordTok{n}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 3 x 2
+##   background     n
+##   <fct>      <int>
+## 1 English       25
+## 2 Bengali       34
+## 3 Chinese       34
+\end{verbatim}
+
 \hypertarget{r-session}{%
 \section{R session}\label{r-session}}
 
