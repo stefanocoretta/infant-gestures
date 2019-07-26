@@ -909,6 +909,24 @@ vocab %>%
   summarise(n = n())
 ```
 
+# Correlation of vocabulary scores and maternal scores
+
+```{r vocab-cor}
+vocab %>%
+  ggplot(aes(comprehension, production)) +
+  geom_point() +
+  geom_smooth(method = "glm", method.args = list(family = poisson))
+```
+
+```{r maternal-cor}
+all_tot %>%
+  left_join(utterances_tot) %>%
+  ggplot(aes(utterances, ct)) +
+  geom_point() +
+  geom_smooth(method = "glm", method.args = list(family = poisson))
+```
+
+
 # R session
 
 ```{r session}

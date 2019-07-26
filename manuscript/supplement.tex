@@ -2485,6 +2485,53 @@ The counts apply both to the comprehension and production analyses.
 ## 3 Chinese       34
 \end{verbatim}
 
+\hypertarget{correlation-of-vocabulary-scores-and-maternal-scores}{%
+\section{Correlation of vocabulary scores and maternal
+scores}\label{correlation-of-vocabulary-scores-and-maternal-scores}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{vocab }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(comprehension, production)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"glm"}\NormalTok{, }\DataTypeTok{method.args =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{family =}\NormalTok{ poisson))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: Removed 3 rows containing non-finite values (stat_smooth).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 3 rows containing missing values (geom_point).
+\end{verbatim}
+
+\includegraphics{supplement_files/figure-latex/vocab-cor-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{all_tot }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{left_join}\NormalTok{(utterances_tot) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(utterances, ct)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"glm"}\NormalTok{, }\DataTypeTok{method.args =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{family =}\NormalTok{ poisson))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Joining, by = c("dyad", "back_o", "months")
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 12 rows containing non-finite values (stat_smooth).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 12 rows containing missing values (geom_point).
+\end{verbatim}
+
+\includegraphics{supplement_files/figure-latex/maternal-cor-1.pdf}
+
 \hypertarget{r-session}{%
 \section{R session}\label{r-session}}
 
