@@ -7,6 +7,9 @@ output:
     latex_engine: xelatex
     number_sections: yes
 mainfont: Lato
+params:
+  version: "2.0"
+  version-date: "2019/09/17"
 ---
 
 ```{r setup, include=FALSE}
@@ -649,8 +652,7 @@ all_gest_lm <- glm(
     count_tot *
     months *
     background,
-  data = vocab,
-  family = poisson
+  data = vocab
 )
 summary(all_gest_lm)
 ```
@@ -667,8 +669,7 @@ hgp_lm <- glm(
     hgp_tot *
     months *
     background,
-  data = vocab,
-  family = poisson()
+  data = vocab
 )
 summary(hgp_lm)
 ```
@@ -685,8 +686,7 @@ reach_lm <- glm(
     reach_tot *
     months *
     background,
-  data = vocab,
-  family = poisson()
+  data = vocab
 )
 summary(reach_lm)
 ```
@@ -703,8 +703,7 @@ utt_lm <- glm(
     utt_tot *
     months *
     background,
-  data = vocab,
-  family = poisson()
+  data = vocab
 )
 summary(utt_lm)
 ```
@@ -721,8 +720,7 @@ ct_lm <- glm(
     ct_tot *
     months *
     background,
-  data = filter(vocab, ct_tot < 30),
-  family = poisson()
+  data = filter(vocab, ct_tot < 30)
 )
 summary(ct_lm)
 ```
@@ -741,8 +739,7 @@ all_gest_prod <- glm(
     count_tot *
     months *
     background,
-  data = vocab,
-  family = poisson()
+  data = vocab
 )
 summary(all_gest_prod)
 ```
@@ -759,8 +756,7 @@ hgp_prod <- glm(
     hgp_tot *
     months *
     background,
-  data = vocab,
-  poisson()
+  data = vocab
 )
 summary(hgp_prod)
 ```
@@ -777,8 +773,7 @@ reach_prod <- glm(
     reach_tot *
     months *
     background,
-  data = vocab,
-  family = poisson()
+  data = vocab
 )
 summary(reach_prod)
 ```
@@ -795,8 +790,7 @@ utt_prod <- glm(
     utt_tot *
     months *
     background,
-  data = vocab,
-  family = poisson()
+  data = vocab
 )
 summary(utt_prod)
 ```
@@ -813,8 +807,7 @@ ct_prod <- glm(
     ct_tot *
     months *
     background,
-  data = filter(vocab, ct_tot < 30),
-  family = poisson()
+  data = filter(vocab, ct_tot < 30)
 )
 summary(ct_prod)
 ```
