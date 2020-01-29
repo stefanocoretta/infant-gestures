@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.999991 (TeX Live 2019) (preloaded format=xelatex 2020.1.27)  28 JAN 2020 16:42
+This is XeTeX, Version 3.14159265-2.6-0.999991 (TeX Live 2019) (preloaded format=xelatex 2020.1.27)  29 JAN 2020 09:38
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1221,12 +1221,12 @@ File: supplement_files/figure-latex/vocab-cor-1.pdf Graphic file (type pdf)
 File: supplement_files/figure-latex/maternal-cor-1.pdf Graphic file (type pdf)
 <use supplement_files/figure-latex/maternal-cor-1.pdf>
 [47] [48]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 2485.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 2480.
 [49]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 2485.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 2480.
 (./supplement.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 2485.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 2485.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 2480.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 2480.
  ) 
 Here is how much of TeX's memory you used:
  30928 strings out of 492472

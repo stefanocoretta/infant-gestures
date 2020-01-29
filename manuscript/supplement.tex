@@ -1010,23 +1010,23 @@ The following models test cultural group.
 ## 
 ## Parametric coefficients:
 ##               Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)     282.36      28.13  10.037  3.4e-16 ***
-## back_oBengali   -63.34      38.75  -1.635    0.106    
-## back_oChinese   -35.76      38.67  -0.925    0.358    
+## (Intercept)     273.12      26.96  10.131   <2e-16 ***
+## back_oBengali   -54.18      38.11  -1.422    0.159    
+## back_oChinese   -26.50      38.03  -0.697    0.488    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Approximate significance of smooth terms:
 ##                            edf  Ref.df     F p-value    
-## s(months)                1.636   1.838 0.887  0.3052    
-## s(months):back_oBengali  1.001   1.001 2.148  0.1463    
-## s(months):back_oChinese  1.405   1.618 2.887  0.0457 *  
-## s(months,dyad)          69.958 109.000 7.067  <2e-16 ***
+## s(months)                1.712   1.894 1.087  0.2861    
+## s(months):back_oBengali  1.001   1.001 1.303  0.2568    
+## s(months):back_oChinese  1.318   1.513 2.269  0.0814 .  
+## s(months,dyad)          75.684 113.000 7.557  <2e-16 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## R-sq.(adj) =  0.836   Deviance explained = 91.2%
-## -ML =  972.9  Scale est. = 2858.8    n = 164
+## R-sq.(adj) =  0.843   Deviance explained = 91.9%
+## -ML = 1010.1  Scale est. = 2773.3    n = 170
 \end{verbatim}
 
 \begin{Shaded}
@@ -1064,10 +1064,10 @@ The following models test cultural group.
 ## Chi-square test of ML scores
 ## -----
 ##            Model    Score Edf Difference    Df p.value Sig.
-## 1 utter_gam_null 977.0534   5                              
-## 2      utter_gam 972.8974  11      4.156 6.000   0.216     
+## 1 utter_gam_null 1013.245   5                              
+## 2      utter_gam 1010.123  11      3.122 6.000   0.396     
 ## 
-## AIC difference: -3.17, model utter_gam_null has lower AIC.
+## AIC difference: -3.62, model utter_gam_null has lower AIC.
 \end{verbatim}
 
 \begin{verbatim}
@@ -1127,10 +1127,10 @@ The following models test time sample.
 ## Chi-square test of ML scores
 ## -----
 ##              Model    Score Edf Difference    Df p.value Sig.
-## 1 utter_gam_2_null 979.1766   3                              
-## 2      utter_gam_2 977.0534   5      2.123 2.000   0.120     
+## 1 utter_gam_2_null 1015.790   3                              
+## 2      utter_gam_2 1013.245   5      2.545 2.000   0.078     
 ## 
-## AIC difference: 5.05, model utter_gam_2 has lower AIC.
+## AIC difference: 6.82, model utter_gam_2 has lower AIC.
 \end{verbatim}
 
 \begin{verbatim}
@@ -1738,31 +1738,31 @@ months}\label{comprehension-at-12-and-18-months}}
 ## 
 ## Deviance Residuals: 
 ##     Min       1Q   Median       3Q      Max  
-## -172.80   -49.34   -14.01    44.09   203.25  
+## -173.66   -49.34   -14.18    44.09   203.25  
 ## 
 ## Coefficients:
-##                                      Estimate Std. Error t value Pr(>|t|)  
-## (Intercept)                         240.86440   93.52664   2.575   0.0117 *
-## utt_tot                              -0.15548    0.10833  -1.435   0.1549  
-## months18                             78.04806  136.16090   0.573   0.5680  
-## backgroundBengali                  -152.35884   99.02146  -1.539   0.1276  
-## backgroundChinese                  -186.80332  102.33524  -1.825   0.0715 .
-## utt_tot:months18                      0.04140    0.15614   0.265   0.7915  
-## utt_tot:backgroundBengali             0.18276    0.11662   1.567   0.1208  
-## utt_tot:backgroundChinese             0.21628    0.11928   1.813   0.0733 .
-## months18:backgroundBengali            8.57113  143.72135   0.060   0.9526  
-## months18:backgroundChinese           44.79628  148.29136   0.302   0.7633  
-## utt_tot:months18:backgroundBengali   -0.03118    0.16765  -0.186   0.8529  
-## utt_tot:months18:backgroundChinese   -0.04281    0.17135  -0.250   0.8033  
+##                                      Estimate Std. Error t value Pr(>|t|)   
+## (Intercept)                         190.06494   67.93748   2.798  0.00631 **
+## utt_tot                              -0.10670    0.08073  -1.322  0.18968   
+## months18                            171.12877   97.44509   1.756  0.08250 . 
+## backgroundBengali                  -101.55937   75.35016  -1.348  0.18113   
+## backgroundChinese                  -136.00385   79.67120  -1.707  0.09130 . 
+## utt_tot:months18                     -0.06703    0.11490  -0.583  0.56110   
+## utt_tot:backgroundBengali             0.13399    0.09159   1.463  0.14702   
+## utt_tot:backgroundChinese             0.16751    0.09496   1.764  0.08118 . 
+## months18:backgroundBengali          -84.50957  107.79535  -0.784  0.43513   
+## months18:backgroundChinese          -48.28443  113.84000  -0.424  0.67249   
+## utt_tot:months18:backgroundBengali    0.07726    0.13017   0.594  0.55435   
+## utt_tot:months18:backgroundChinese    0.06563    0.13492   0.486  0.62787   
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## (Dispersion parameter for gaussian family taken to be 6203.931)
+## (Dispersion parameter for gaussian family taken to be 6228.136)
 ## 
-##     Null deviance: 863095  on 96  degrees of freedom
-## Residual deviance: 527334  on 85  degrees of freedom
-##   (23 observations deleted due to missingness)
-## AIC: 1135.6
+##     Null deviance: 928782  on 100  degrees of freedom
+## Residual deviance: 554304  on  89  degrees of freedom
+##   (19 observations deleted due to missingness)
+## AIC: 1182.3
 ## 
 ## Number of Fisher Scoring iterations: 2
 \end{verbatim}
@@ -2047,25 +2047,25 @@ months}\label{production-at-12-and-18-months}}
 ## 
 ## Coefficients:
 ##                                      Estimate Std. Error t value Pr(>|t|)
-## (Intercept)                          2.771638  57.855640   0.048    0.962
-## utt_tot                              0.004452   0.067015   0.066    0.947
-## months18                            26.983493  84.229222   0.320    0.749
-## backgroundBengali                    0.893097  61.254741   0.015    0.988
-## backgroundChinese                   -0.317611  63.304643  -0.005    0.996
-## utt_tot:months18                     0.021159   0.096587   0.219    0.827
-## utt_tot:backgroundBengali            0.004350   0.072140   0.060    0.952
-## utt_tot:backgroundChinese           -0.002530   0.073784  -0.034    0.973
-## months18:backgroundBengali         -36.989072  88.906120  -0.416    0.678
-## months18:backgroundChinese          12.209345  91.733131   0.133    0.894
-## utt_tot:months18:backgroundBengali   0.053915   0.103708   0.520    0.605
-## utt_tot:months18:backgroundChinese  -0.015657   0.105996  -0.148    0.883
+## (Intercept)                          1.326517  41.130133   0.032    0.974
+## utt_tot                              0.005932   0.048877   0.121    0.904
+## months18                            26.710518  58.994380   0.453    0.652
+## backgroundBengali                    2.338218  45.617854   0.051    0.959
+## backgroundChinese                    1.127511  48.233863   0.023    0.981
+## utt_tot:months18                     0.017534   0.069563   0.252    0.802
+## utt_tot:backgroundBengali            0.002871   0.055449   0.052    0.959
+## utt_tot:backgroundChinese           -0.004009   0.057492  -0.070    0.945
+## months18:backgroundBengali         -36.716096  65.260543  -0.563    0.575
+## months18:backgroundChinese          12.482321  68.920043   0.181    0.857
+## utt_tot:months18:backgroundBengali   0.057540   0.078806   0.730    0.467
+## utt_tot:months18:backgroundChinese  -0.012033   0.081681  -0.147    0.883
 ## 
-## (Dispersion parameter for gaussian family taken to be 2374.038)
+## (Dispersion parameter for gaussian family taken to be 2282.756)
 ## 
-##     Null deviance: 267531  on 96  degrees of freedom
-## Residual deviance: 201793  on 85  degrees of freedom
-##   (23 observations deleted due to missingness)
-## AIC: 1042.4
+##     Null deviance: 268717  on 100  degrees of freedom
+## Residual deviance: 203165  on  89  degrees of freedom
+##   (19 observations deleted due to missingness)
+## AIC: 1080.9
 ## 
 ## Number of Fisher Scoring iterations: 2
 \end{verbatim}
@@ -2254,9 +2254,9 @@ used in the models above.
 ## # Groups:   back_o [3]
 ##   back_o  months     n
 ##   <ord>    <dbl> <int>
-## 1 English     10    16
-## 2 English     11    17
-## 3 English     12    15
+## 1 English     10    18
+## 2 English     11    19
+## 3 English     12    17
 ## 4 Bengali     10    20
 ## 5 Bengali     11    19
 ## 6 Bengali     12    18
@@ -2356,7 +2356,7 @@ The counts apply both to the comprehension and production analyses.
 ## # A tibble: 3 x 2
 ##   background     n
 ##   <fct>      <int>
-## 1 English       23
+## 1 English       27
 ## 2 Bengali       34
 ## 3 Chinese       34
 \end{verbatim}
@@ -2399,16 +2399,11 @@ scores}\label{correlation-of-vocabulary-scores-and-maternal-scores}}
 \end{verbatim}
 
 \begin{verbatim}
-## Warning: Column `dyad` joining factors with different levels, coercing to
-## character vector
+## Warning: Removed 12 rows containing non-finite values (stat_smooth).
 \end{verbatim}
 
 \begin{verbatim}
-## Warning: Removed 18 rows containing non-finite values (stat_smooth).
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: Removed 18 rows containing missing values (geom_point).
+## Warning: Removed 12 rows containing missing values (geom_point).
 \end{verbatim}
 
 \includegraphics{supplement_files/figure-latex/maternal-cor-1.pdf}
