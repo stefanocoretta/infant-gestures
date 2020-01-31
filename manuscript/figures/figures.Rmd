@@ -206,7 +206,7 @@ ggsave("reach-point-lead.jpg", path = img_path, width = 6, height = 5)
 
 ```{r compr-gest}
 vocab %>%
-  ggplot(aes(count_tot, understand, colour = background)) +
+  ggplot(aes(count_tot, comprehension, colour = background)) +
   geom_point() +
   geom_smooth(method = "lm", alpha = 0.2) +
   facet_grid(~ months) +
@@ -223,7 +223,7 @@ ggsave("compr-gest.jpg", path = img_path, width = 6, height = 5)
 
 ```{r prod-gest}
 vocab %>%
-  ggplot(aes(count_tot, und_say, colour = background)) +
+  ggplot(aes(count_tot, production, colour = background)) +
   geom_point() +
   geom_smooth(method = "lm", alpha = 0.2) +
   facet_grid(~ months) +
@@ -240,7 +240,7 @@ ggsave("prod-gest.jpg", path = img_path, width = 6, height = 5)
 
 ```{r compr-utter}
 vocab %>%
-  ggplot(aes(utt_tot, understand, colour = background)) +
+  ggplot(aes(utt_tot, comprehension, colour = background)) +
   geom_point() +
   geom_smooth(method = "lm", alpha = 0.2) +
   facet_grid(~ months) +
@@ -257,7 +257,7 @@ ggsave("compr-utter.jpg", path = img_path, width = 6, height = 5)
 
 ```{r prod-utter}
 vocab %>%
-  ggplot(aes(utt_tot, und_say, colour = background)) +
+  ggplot(aes(utt_tot, production, colour = background)) +
   geom_point() +
   geom_smooth(method = "lm", alpha = 0.2) +
   facet_grid(~ months) +
@@ -275,7 +275,7 @@ ggsave("prod-utter.jpg", path = img_path, width = 6, height = 5)
 ```{r compr-ct}
 vocab %>%
   filter(ct_tot < 25) %>%
-  ggplot(aes(ct_tot, understand, colour = background)) +
+  ggplot(aes(ct_tot, comprehension, colour = background)) +
   geom_point() +
   geom_smooth(method = "lm", alpha = 0.2) +
   facet_grid(~ months) +
@@ -293,7 +293,7 @@ ggsave("compr-ct.jpg", path = img_path, width = 6, height = 5)
 ```{r prod-ct}
 vocab %>%
   filter(ct_tot < 25) %>%
-  ggplot(aes(ct_tot, und_say, colour = background)) +
+  ggplot(aes(ct_tot, production, colour = background)) +
   geom_point() +
   geom_smooth(method = "lm", alpha = 0.2) +
   facet_grid(~ months) +
